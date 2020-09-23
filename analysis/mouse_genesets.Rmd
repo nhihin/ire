@@ -1,0 +1,353 @@
+---
+title: "Zebrafish MSigDB Gene Set Enrichment Testing"
+author: "Nhi Hin"
+date: "2020-04-29"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r load-packages, include=FALSE}
+library(GSEABase)
+library(dplyr)
+library(readr)
+library(magrittr)
+library(tibble)
+library(reshape2)
+library(fgsea)
+library(ggplot2)
+library(org.Hs.eg.db)
+library(org.Dr.eg.db)
+library(biomaRt)
+library(limma)
+library(here)
+library(stringr)
+library(openxlsx)
+library(pheatmap)
+```
+
+
+## 0. Introduction
+
+- In this analysis, we will perform gene set enrichment testing on the 
+5XFAD mouse dataset using the following gene sets:
+
+  - MSigDB **Hallmark** gene set collection 
+  - Mouse IRE gene sets 
+
+- The gene sets on MSigDB contain mouse genes. To use these as part of an 
+analysis with zebrafish data, the homologous mouse gene IDs first 
+need to be swapped in. 
+
+
+## 1. Import .gmt files from MSigDB
+
+- The gene set collections from MSigDB were downloaded from 
+[here](https://www.gsea-msigdb.org/gsea/downloads.jsp) as .gmt files 
+containing human entrezgene IDs. 
+
+- Below, we import them in and convert from a list of lists to a 
+data.frame. 
+
+```{r}
+genesetsDir <- here("data", "gsea")
+
+h <- getGmt(file.path(genesetsDir, 
+                      "h.all.v6.0.entrez.gmt"))    # Hallmark gene sets
+c1 <- getGmt(file.path(genesetsDir,
+                       "c1.all.v6.0.entrez.gmt"))  # positional gene sets
+c2 <- getGmt(file.path(genesetsDir, 
+                       "c2.all.v6.0.entrez.gmt"))  # curated gene sets
+c3 <- getGmt(file.path(genesetsDir,
+                       "c3.all.v6.0.entrez.gmt"))  # motif gene sets
+c4 <- getGmt(file.path(genesetsDir, 
+                       "c4.all.v6.0.entrez.gmt"))  # computational gene sets
+c5 <- getGmt(file.path(genesetsDir, 
+                       "c5.all.v6.0.entrez.gmt"))  # GO gene sets
+c6 <- getGmt(file.path(genesetsDir,
+                       "c6.all.v6.0.entrez.gmt"))  # oncogenic gene sets
+c7 <- getGmt(file.path(genesetsDir,
+                       "c7.all.v6.0.entrez.gmt"))  # immunologicgene sets
+
+# Convert each gene sets to list where the name of each list is the gene set
+# name and the list items are the entrezgenes. 
+h_l <- geneIds(h) %>% as.list
+c1_l <- geneIds(c1) %>% as.list
+c2_l <- geneIds(c2) %>% as.list
+c3_l <- geneIds(c3) %>% as.list
+c4_l <- geneIds(c4) %>% as.list
+c5_l <- geneIds(c5) %>% as.list
+c6_l <- geneIds(c6) %>% as.list
+c7_l <- geneIds(c7) %>% as.list
+
+# Bind the list of gene sets so that each list becomes a data.frame.
+h_df <- lapply(h_l, cbind)
+c1_df <- lapply(c1_l, cbind)
+c2_df <- lapply(c2_l, cbind)
+c3_df <- lapply(c3_l, cbind)
+c4_df <- lapply(c4_l, cbind)
+c5_df <- lapply(c5_l, cbind)
+c6_df <- lapply(c6_l, cbind)
+c7_df <- lapply(c7_l, cbind)
+```
+
+
+## 2. Convert human entrezgenes in MSigDB gene sets to zebrafish ensembl IDs
+
+- The IDs in the MSigDB gene sets are human entrezgene IDs which need to be 
+converted into zebrafish Ensembl gene IDs. 
+
+- We will prepare a data.frame `zebAndHumanEnsGenes` to map between the IDs.
+
+```{r}
+mEns <- org.Mm.egENSEMBL %>%
+  as.data.frame %>%
+  set_colnames(c("m_entrezgene","m_ensembl"))
+
+# Create a data.frame to map between human entrezgenes and zebrafish ensembl IDs
+# BioMart only includes homolog mappings for ensembl IDs which is why we need to 
+# retrieve human ensembl IDs, then join to the humanEntrezEns data.frame,
+# in order to get the desired human entrezgenes to zebrafish ensembl ID mapping
+mMart <- useMart("ENSEMBL_MART_ENSEMBL", "mmusculus_gene_ensembl")
+getFromBiomart <- c("ensembl_gene_id", "hsapiens_homolog_ensembl_gene")
+mAndHumanEnsGenes <- getBM(getFromBiomart, values = unique(mEns$m_ensembl), 
+                           mart = mMart) %>%
+  set_colnames(c("mouse_ensembl", "human_ensembl")) %>%
+  left_join(human_entrez2Ens, by = "human_ensembl") %>%
+  dplyr::select(-human_ensembl) %>% 
+  dplyr::filter(complete.cases(.))
+
+```
+
+- This mapping in `zebAndHumanEnsGenes` contains 
+`r (zebAndHumanEnsGenes %>% lapply(function(x){x%>%unique%>%length}))[[1]]` 
+zebrafish Ensembl IDs to 
+`r (zebAndHumanEnsGenes %>% lapply(function(x){x%>%unique%>%length}))[[2]]` 
+human entrezgene IDs. 
+
+- The following function is applied to the gene sets to map the IDs in 
+the gene sets from human entrezgene to zebrafish ensembl. 
+
+```{r eval=FALSE}
+mapHumanGS2Mouse<- function(x) {
+  x %>% 
+    as.data.frame %>% 
+    set_colnames("human_entrezgene") %>%
+    left_join(mAndHumanEnsGenes, by = "human_entrezgene") %>% 
+    dplyr::filter(complete.cases(.)) %>%
+    dplyr::select(-human_entrezgene) %>%
+    as.list %>%
+    unname %>%
+    .[[1]] %>%
+    unique
+}
+
+h_mapped_m <- lapply(h_df, mapHumanGS2Mouse)
+c1_mapped_m <- lapply(c1_df, mapHumanGS2Mouse)
+c2_mapped_m <- lapply(c2_df, mapHumanGS2Mouse) 
+c3_mapped_m <- lapply(c3_df, mapHumanGS2Mouse)
+c4_mapped_m <- lapply(c4_df, mapHumanGS2Mouse)
+c5_mapped_m <- lapply(c5_df, mapHumanGS2Mouse)
+c6_mapped_m <- lapply(c6_df, mapHumanGS2Mouse)
+c7_mapped_m <- lapply(c7_df, mapHumanGS2Mouse)
+```
+
+- Because the mapping takes a while to run, I've saved the mapped 
+genesets as R objects, which can be imported as below:
+
+```{r}
+mouGenesets <- file.path(genesetsDir, "mouse")
+
+h_mapped <- readRDS(file.path(mouGenesets, "ens_h_mapped.rds"))
+c1_mapped <- readRDS(file.path(mouGenesets, "ens_c1_mapped.rds"))
+c2_mapped <- readRDS(file.path(mouGenesets, "ens_c2_mapped.rds"))
+c3_mapped <- readRDS(file.path(mouGenesets, "ens_c3_mapped.rds"))
+c4_mapped <- readRDS(file.path(mouGenesets, "ens_c4_mapped.rds"))
+c5_mapped <- readRDS(file.path(mouGenesets, "ens_c5_mapped.rds"))
+c6_mapped <- readRDS(file.path(mouGenesets, "ens_c6_mapped.rds"))
+c7_mapped <- readRDS(file.path(mouGenesets, "ens_c7_mapped.rds"))
+```
+
+## 3. Build indexes for MSigDB gene sets
+
+- We now need to build an index for each collection of gene sets. 
+The index is basically the ensembl IDs of the gene sets to the 
+corresponding row number in the voom object previously generated in the 
+differential gene expression analysis. 
+
+- First we import the voom object:
+
+```{r}
+v <- readRDS(here("data", "zebrafish", "voomData_g.rds"))
+```
+
+- Build the indexes for each gene set collection: 
+
+```{r}
+buildGenesetIndex <- function(x, voomObj = v){
+  limma::ids2indices(x, rownames(voomObj))
+}
+
+h_idx <- buildGenesetIndex(h_mapped)
+c1_idx <- buildGenesetIndex(c1_mapped)
+c2_idx <- buildGenesetIndex(c2_mapped)
+c3_idx <- buildGenesetIndex(c3_mapped)
+c4_idx <- buildGenesetIndex(c4_mapped)
+c5_idx <- buildGenesetIndex(c5_mapped)
+c6_idx <- buildGenesetIndex(c6_mapped)
+c7_idx <- buildGenesetIndex(c7_mapped)
+```
+
+- The C2 collection contains all gene sets based upon KEGG pathways. 
+We will subset this out as well in case we want to do any enrichment 
+analyses specifically on KEGG gene sets. 
+
+```{r}
+kegg_idx <- c2_idx[(names(c2_idx) %>% str_detect("KEGG"))]
+head(kegg_idx)
+```
+
+## 4. Build indexes for IRE gene sets
+
+- The IRE gene sets were previously defined in `ire-zebrafish-genesets.Rmd`. 
+
+- Here we will import the saved R objects of these gene sets back in 
+and build the indexes. 
+
+```{r}
+ireGenes <- readRDS(here("data","ire","zebrafish","ireGenes.rds"))
+
+ireGenes_idx <- buildGenesetIndex(ireGenes)
+str(ireGenes_idx)
+```
+
+
+## 5. Perform Gene Set Testing
+
+- The next step is to perform gene set testing using the MSigDB gene sets 
+and the IRE gene sets. 
+
+- We will need a few additional objects (design and contrast matrices)
+ from the analysis with *limma* in `de-analysis.Rmd`. 
+
+```{r}
+design <- readRDS(here("data", "zebrafish", "design_g.rds"))
+contrasts <- readRDS(here("data", "zebrafish", "contrasts_g.rds"))
+```
+
+- The gene set testing will be performed with *fry*, *camera* and *fgsea* 
+with the raw p-values from this method being combined with Wilkinson's method. 
+This is included in the `combinedGSEA` function which we will import below. 
+
+```{r}
+source(here("code","combinedGSEA.R"))
+```
+
+- The gene set testing will be performed with the following gene set 
+collections:
+
+    - **IRE gene sets** defined earlier. 
+    - **KEGG gene sets** based on pathways from the KEGG database. 
+    - **Hallmark gene sets** non-redundant gene sets representing 
+    diverse biological / cellular pathways or activities. 
+
+```{r eval=FALSE}
+gseaResults_ire <- combinedGSEA(v, ireGenes_idx, design, contrasts)
+gseaResults_kegg <- combinedGSEA(v, kegg_idx, design, contrasts)
+gseaResults_h <- combinedGSEA(v, h_idx, design, contrasts)
+```
+```{r include=FALSE}
+gseaResults_ire<-readRDS(here("data", "zebrafish", 
+                                 "gsea", "gseaResults_ire.rds"))
+gseaResults_kegg<-readRDS(here("data", "zebrafish", 
+                                 "gsea", "gseaResults_kegg.rds"))
+gseaResults_h<-readRDS(here("data", "zebrafish", 
+                                 "gsea", "gseaResults_ire.rds"))
+```
+
+
+
+##  6. Results
+
+- The combined p-values for each gene set in each comparison (contrast) 
+can be seen below:
+
+### 6.1. IRE gene sets
+
+```{r}
+gseaResults_ire$combTest
+```
+
+### 6.2. KEGG gene sets
+
+```{r}
+gseaResults_kegg$combTest
+```
+
+### 6.3. Hallmark gene sets
+
+```{r}
+gseaResults_h$combTest
+```
+
+
+## 7. Plots
+
+### 6.1. Age-dependent effects of the fAD-like mutation
+
+```{r fig.width=11}
+# extract up/downregulated gene proportions from mroast
+x_props <- gseaResults_h$indivTest$normoxia_6mth_mutant_vs_wt$mroast %>% 
+  dplyr::select(Geneset, NGenes, PropUp, PropDown, ) %>% 
+  dplyr::mutate(contrast="normoxia_6mth_mutant_vs_wt",
+                up = NGenes * PropUp,
+                down = NGenes * PropDown,
+                notSig = NGenes - up - down
+  ) %>%
+  dplyr::select(-PropUp, -PropDown)
+
+# extract proportions from mroast
+y_props <- gseaResults_h$indivTest$normoxia_24mth_mutant_vs_wt$mroast %>% 
+  dplyr::select(Geneset, NGenes, PropUp, PropDown) %>% 
+  dplyr::mutate(contrast="normoxia_24mth_mutant_vs_wt",
+                up = NGenes * PropUp,
+                down = NGenes * PropDown,
+                notSig = NGenes - up - down
+  ) %>%
+  dplyr::select(-PropUp, -PropDown)
+
+# create the plot
+# adapted from https://stackoverflow.com/questions/4559229/drawing-pyramid-plot-using-r-and-ggplot2
+xy_plot <- bind_rows(x_props, y_props) %>%
+  dplyr::mutate(Geneset = gsub(x = Geneset, pattern = "_", replacement = " "),
+                Geneset = gsub(x = Geneset, pattern = "HALLMARK", replacement = "")) %>%
+  reshape2::melt(id.vars=c("Geneset","NGenes","contrast")) %>%
+  dplyr::arrange(desc(NGenes)) %>% 
+  dplyr::rename(direction = variable, ngenes = value) %>%
+  dplyr::mutate(Geneset = factor(Geneset, levels = unique(Geneset)),
+                direction = factor(direction, levels = c("notSig", "down", "up")),
+                contrast = factor(contrast, levels = c("normoxia_6mth_mutant_vs_wt","normoxia_24mth_mutant_vs_wt"))) %>%
+  ggplot(aes(x = Geneset, y = ngenes, fill = direction)) +
+  geom_col() +
+  ggpol::facet_share(~contrast, scales = "free") +
+  scale_fill_manual(values=c("#DDDDDD","cornflowerblue","#FE4365"))+
+  coord_flip() +
+  theme(axis.line.y = element_blank())
+
+xy_plot
+```
+
+
+## Export Objects
+
+- Gene set enrichment analysis results:
+
+```{r eval=FALSE}
+gseaResults_ire %>% saveRDS(here("data", "zebrafish", 
+                                 "gsea", "gseaResults_ire.rds"))
+gseaResults_kegg %>% saveRDS(here("data", "zebrafish", 
+                                 "gsea", "gseaResults_kegg.rds"))
+gseaResults_h %>% saveRDS(here("data", "zebrafish", 
+                                 "gsea", "gseaResults_ire.rds"))
+```
+

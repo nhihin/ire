@@ -1,0 +1,313 @@
+---
+title: "Differential Gene Expression Analysis on fAD-like zebrafish dataset"
+author: "Nhi Hin"
+date: "2020-04-20"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r load-packages, include=FALSE}
+library(limma)
+library(edgeR)
+library(here)
+library(magrittr)
+library(dplyr)
+library(tibble)
+library(ggplot2)
+library(export)
+library(ggrepel)
+theme_set(theme_bw())
+```
+```{r functions, include=FALSE}
+# The write.fit function is originally from the limma package. It writes
+# out the fit object and results as a table. Below I have just modified it 
+# to not write out a table and have it in R as a data.frame. 
+write_fit <- function(fit, results=NULL, 
+                      F.adjust="none", adjust="fdr", method="global", ...) {
+    if (!is(fit, "MArrayLM")) 
+        stop("fit should be an MArrayLM object")
+    if (!is.null(results) && !is(results, "TestResults")) 
+        stop("results should be a TestResults object")
+    if (is.null(fit$t) || is.null(fit$p.value)) 
+        fit <- eBayes(fit)
+    method <- match.arg(method, c("separate", "global"))
+    p.value <- as.matrix(fit$p.value)
+    if (adjust == "none") {
+        p.value.adj <- NULL
+    }
+    else {
+        p.value.adj <- p.value
+        if (method == "separate") 
+            for (j in 1:ncol(p.value)) p.value.adj[, j] <- p.adjust(p.value[, 
+                j], method = adjust)
+        if (method == "global") 
+            p.value.adj[] <- p.adjust(p.value, method = adjust)
+    }
+    if (F.adjust == "none" || is.null(fit$F.p.value)) 
+        F.p.value.adj <- NULL
+    else F.p.value.adj <- p.adjust(fit$F.p.value, method = F.adjust)
+    
+    tab <- list()
+    tab$A <- (fit$Amean)
+    tab$Coef <- (fit$coef)
+    tab$t <- (fit$t)
+    tab$p.value <- (p.value)
+    tab$p.value.adj <- (p.value.adj)
+    tab$F <- (fit$F)
+    tab$F.p.value <- (fit$F.p.value)
+    tab$F.p.value.adj <- F.p.value.adj
+    tab$Res <- unclass(results)
+    tab$Genes <- fit$genes
+    tab <- data.frame(tab, check.names = FALSE)
+    return(tab)
+}
+```
+
+
+## 0. Introduction
+
+- Please see `de-import-kallisto-data.Rmd` for details on the pre-processing 
+of the *kallisto* data including summarisation to gene-level counts 
+and filtering. 
+
+- In this analysis, we will perform differential gene expression 
+analysis using *limma*.
+
+## 1. DE analysis
+
+- We will determine the DE genes and transcripts separately with *limma*. 
+
+- In both cases the model is based on a grouping variable `Group` 
+which includes the **Genotype**, **Age**, and **Hypoxia/Normoxia** status. 
+
+- We also add the term in for **Gender** to account for any gender-specific 
+effects on gene/transcript expression.
+
+### 1.1. Gene-level analysis
+
+- Import in the filtered DGEList object. 
+
+```{r}
+dge_g <- readRDS(here("data", "zebrafish", "dge_g_filtered.rds"))
+```
+
+- Perform DE analysis using *limma*. 
+
+```{r}
+design_g <- model.matrix(~0 + Group + Gender, data = dge_g$samples) %>%
+  set_colnames(gsub(pattern = "Group", replacement = "", x = colnames(.)))
+
+voomData_g <- voomWithQualityWeights(dge_g, design = design_g, plot = TRUE)
+
+contrasts_g <- makeContrasts(
+  levels = colnames(design_g), 
+  # Effect of the mutation when hypoxic stress condition and age are constant:
+  normoxia_6mth_mutant_vs_wt = q96_6_0-wt_6_0,
+  normoxia_24mth_mutant_vs_wt = q96_24_0-wt_24_0,
+  hypoxia_6mth_mutant_vs_wt = q96_6_1-wt_6_1,
+  hypoxia_24mth_mutant_vs_wt = q96_24_1-wt_24_1,
+  
+  # Effect of hypoxic stress condition when mutation and age are constant:
+  wt_6mth_hypoxia_vs_normoxia = wt_6_1-wt_6_0,
+  mutant_6mth_hypoxia_vs_normoxia = q96_6_1-q96_6_0,
+  wt_24mth_hypoxia_vs_normoxia = wt_24_1-wt_24_0,
+  mutant_24mth_hypoxia_vs_normoxia = q96_24_1-q96_24_0,
+  
+  # Effect of aging when mutation and hypoxic stress condition are constant:
+  normoxia_wtAging = wt_24_0-wt_6_0,
+  hypoxia_wtAging = wt_24_1-wt_6_1,
+  normoxia_mutantAging = q96_24_0-q96_6_0,
+  hypoxia_mutantAging = q96_24_1-q96_6_1
+)
+
+fit_g <- lmFit(voomData_g, design_g) %>%
+  contrasts.fit(contrasts_g) %>%
+  eBayes(robust = TRUE)
+
+results_g <- decideTests(fit_g, 
+                         p.value = 0.05, 
+                         adjust.method = "fdr", 
+                         method = "global") # Adjust pvalues across all contrasts
+
+# Number of DE genes in each comparison (contrast):
+summary(results_g)
+
+write_fit_g <- write_fit(fit_g, 
+                         results_g, 
+                         method = "global", 
+                         adjust = "fdr")
+```
+
+
+#### 1.1.1. Gender-specific effects
+
+- To see how much differential expression gender actually accounts for, 
+we will perform a DE analysis between male and female samples that are 
+the same age. 
+
+- Aside from setting new contrasts, the rest of the analysis is just copied 
+from above. 
+
+```{r}
+# Create a new grouping variable with gender and age. 
+dge_g$samples %<>% mutate(genderage = paste0(Gender, "_",Age))
+
+design_g1 <- model.matrix(~0 + genderage, data = dge_g$samples) %>%
+  set_colnames(gsub(pattern = "genderage", replacement = "", x = colnames(.)))
+
+voomData_g1 <- voomWithQualityWeights(dge_g, design = design_g1, plot = TRUE)
+
+contrasts_g1 <- makeContrasts(
+  levels = colnames(design_g1), 
+  genderEffects_24mths = female_24-male_24,
+  genderEffects_6mths = female_6-male_6
+)
+
+fit_g1 <- lmFit(voomData_g1, design_g1) %>%
+  contrasts.fit(contrasts_g1) %>%
+  eBayes(robust = TRUE)
+
+results_g1 <- decideTests(fit_g1, 
+                         p.value = 0.05, 
+                         adjust.method = "fdr", 
+                         method = "global")
+
+write_fit_g1 <- write_fit(fit_g1, 
+                          results_g1, 
+                          method = "global", 
+                          adjust = "fdr") %>% 
+  dplyr::filter(p.value.adj.genderEffects_24mths < 0.05 |
+                  p.value.adj.genderEffects_6mths < 0.05)
+```
+
+- As the table below shows, there are some genes which appear DE as a result 
+of gender. However, these should have been accounted for when we include 
+`gender` as a covariate in the original model (none of these genes 
+appear in the DE genes for mutant vs. wild type comparisons).
+
+```{r}
+summary(results_g1)
+```
+
+### 1.2. Transcript-level analysis
+
+- Although transcript-level analysis is not really relevant to our 
+question, we will do it anyway just to compare with the DE gene results.
+
+- Read in the filtered transcript-level DGEList.
+
+```{r}
+dge_t <- readRDS(here("data", "zebrafish", "dge_t_filtered.rds"))
+```
+
+- Perform DE analysis using *limma*.
+
+```{r}
+design_t <- model.matrix(~0 + Group + Gender, data = dge_t$samples) %>%
+  set_colnames(gsub(pattern = "Group", replacement = "", x = colnames(.)))
+
+voomData_t <- voomWithQualityWeights(dge_t, design = design_t, plot = FALSE)
+
+contrasts_t <- makeContrasts(
+  levels = colnames(design_t), 
+  
+  # Effect of the mutation when hypoxic stress condition and age are constant:
+  normoxia_6mth_mutant_vs_wt = q96_6_0-wt_6_0,
+  normoxia_24mth_mutant_vs_wt = q96_24_0-wt_24_0,
+  hypoxia_6mth_mutant_vs_wt = q96_6_1-wt_6_1,
+  hypoxia_24mth_mutant_vs_wt = q96_24_1-wt_24_1,
+  
+  # Effect of hypoxic stress condition when mutation and age are constant:
+  wt_6mth_hypoxia_vs_normoxia = wt_6_1-wt_6_0,
+  mutant_6mth_hypoxia_vs_normoxia = q96_6_1-q96_6_0,
+  wt_24mth_hypoxia_vs_normoxia = wt_24_1-wt_24_0,
+  mutant_24mth_hypoxia_vs_normoxia = q96_24_1-q96_24_0,
+  
+  # Effect of aging when mutation and hypoxic stress condition are constant:
+  normoxia_wtAging = wt_24_0-wt_6_0,
+  hypoxia_wtAging = wt_24_1-wt_6_1,
+  normoxia_mutantAging = q96_24_0-q96_6_0,
+  hypoxia_mutantAging = q96_24_1-q96_6_1
+)
+
+fit_t <- lmFit(voomData_t, design_t) %>%
+  contrasts.fit(contrasts_t) %>%
+  eBayes(robust = TRUE)
+
+results_t <- decideTests(fit_t,
+                         p.value = 0.05, 
+                         adjust.method = "fdr",
+                         method = "global")
+summary(results_t)
+
+write_fit_t <- write_fit(fit_t, results_t, method = "global", adjust = "fdr")
+```
+
+
+## 2. Plots
+
+### t-statistic PCA
+
+- Plotting a PCA of the t-statistics determined by *limma* can give 
+us an idea into how similar the DE results are across different comparisons.
+
+```{r}
+t_pca <- write_fit_g %>% dplyr::select(starts_with("t.")) %>% 
+  as.matrix %>% t %>% prcomp
+
+summary(t_pca) # PC1: 34.6%, PC2: 28.7%
+
+t_pca_plot <- t_pca$x[, c("PC1","PC2")] %>%
+  as.data.frame %>%
+  rownames_to_column("comparison") %>%
+  mutate(comparison = gsub(x = comparison, pattern = "^t.", replacement = "")) %>%
+  ggplot(aes(x = PC1, y = PC2, colour = comparison, label = comparison)) +
+  geom_point(alpha=0.7, size = 3)+
+  geom_text_repel(size=2) + 
+  theme(aspect.ratio = 1)+
+  scale_colour_manual(values = c(rep("red", 2), rep("blue", 2), rep("magenta",2), 
+                                 rep("red", 2), rep("blue", 2), rep("magenta",2))) +
+  labs(x = "Principal Component 1 (34.6%)", 
+       y = "Principal Component 2 (28.7%)", 
+       colour = "t-statistics")
+
+t_pca_plot
+```
+
+
+
+## Export Objects
+
+- Gene-level DE analysis objects
+
+```{r eval=FALSE}
+design_g %>% saveRDS(here("data", "zebrafish", "design_g.rds"))
+contrasts_g %>% saveRDS(here("data", "zebrafish", "contrasts_g.rds"))
+voomData_g %>% saveRDS(here("data", "zebrafish", "voomData_g.rds"))
+write_fit_g %>% saveRDS(here("data", "zebrafish", "write_fit_g.rds"))
+```
+
+- Transcript-level DE analysis objects
+
+```{r eval=FALSE}
+design_t %>% saveRDS(here("data", "zebrafish", "design_t.rds"))
+contrasts_t %>% saveRDS(here("data", "zebrafish", "contrasts_t.rds"))
+voomData_t %>% saveRDS(here("data", "zebrafish", "voomData_t.rds"))
+write_fit_t %>% saveRDS(here("data", "zebrafish", "write_fit_t.rds"))
+```
+
+- Gender-specific DE genes
+
+```{r}
+write_fit_g1 %>% write.csv(here("output",
+                                "zebrafish", 
+                                "genderSpecificGenes.csv"))
+```
+
+- t-statistic plot
+
+```{r}
+t_pca_plot %>% graph2pdf(here("output", "zebrafish", "tstatistic_pca"))
+```
+

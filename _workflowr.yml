@@ -1,0 +1,71 @@
+# workflowr options
+# Version 1.6.1
+
+# The seed to use for random number generation. See ?set.seed for details.
+seed: 20200420
+# The working directory to build the R Markdown files. The path is relative to
+# _workflowr.yml. See ?rmarkdown::render for details.
+knit_root_dir: "."
+
+name: "IRE Analyses"
+navbar:
+  title: "IRE Analyses"
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "About"
+      href: about.html
+    - text: "Defining IRE Genesets"
+      menu:
+        - text: "Human"
+        - href: index.html
+        - text: "Mouse"
+        - href: index.html
+        - text: "Zebrafish"
+        - href: index.html
+    - text: "Datasets"
+      menu:
+        - text: "fAD-like zebrafish"
+        - text: "Pre-processing"
+        - href: index.html
+        - text: "Import into R"
+        - href: index.html
+        - text: "DE Analysis"
+        - href: index.html
+        - text: "------------------"
+        - text: "Mayo Clinic RNA-seq"
+        - text: "Import into R"
+        - href: index.html
+        - text: "DE Analysis"
+        - href: index.html
+        - text: "------------------"
+        - text: "Caco-2 cell line"
+        - text: "Import into R"
+        - href: index.html
+        - text: "DE Analysis"
+        - href: index.html
+        - text: "------------------"
+        - text: "5XFAD mouse"
+        - text: "Import into R"
+        - href: index.html
+        - text: "DE Analysis"
+        - href: index.html
+        - text: "------------------"
+        - text: "non fAD-like zebrafish"
+        - text: "Import into R"
+        - href: index.html
+        - text: "DE Analysis"
+        - href: index.html
+    - text: "Gene Set Testing"
+      menu:
+        - text: "Caco-2 cell line"
+        - href: index.html
+        - text: "Mayo Clinic RNA-seq"
+        - href: index.html
+        - text: "5XFAD mouse"
+        - href: index.html
+        - text: "fAD-like zebrafish"
+        - href: index.html
+        - text: "non fAD-like zebrafish"
+        - href: index.html
+    - text: "Transcript Stability"

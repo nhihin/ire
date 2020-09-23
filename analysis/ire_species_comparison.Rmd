@@ -1,0 +1,338 @@
+---
+title: "Comparison of IRE gene sets between species"
+author: "Nhi Hin"
+date: "2020-04-27"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+```{r load-packages, include=FALSE}
+library(org.Dr.eg.db)
+library(org.Hs.eg.db)
+library(org.Mm.eg.db)
+library(biomaRt)
+library(dplyr)
+library(readr)
+library(magrittr)
+library(AnnotationHub)
+library(BSgenome.Hsapiens.UCSC.hg38)
+library(here)
+library(UpSetR)
+library(export)
+```
+
+
+## 0. Introduction
+
+- Aim is to compare the sets of IRE genes defined based on the human, mouse, and 
+zebrafish reference transcriptomes. 
+
+- Mouse and zebrafish gene IDs will be converted to homologous human gene IDs 
+to be able to compare the three species. 
+
+## 1. Import gene sets
+
+- The IRE gene sets previously defined for human, mouse, and zebrafish 
+are imported in.
+
+```{r}
+hum_ireGenes <- readRDS(here("data", "ire", "human", "ireGenes.rds"))
+mou_ireGenes <- readRDS(here("data", "ire", "mouse", "ireGenes.rds"))
+zeb_ireGenes <- readRDS(here("data", "ire", "zebrafish", "ireGenes.rds"))
+```
+
+- All genes are represented as Ensembl gene IDs for the respective species:
+
+```{r}
+hum_ireGenes %>% str
+mou_ireGenes %>% str
+zeb_ireGenes %>% str
+```
+
+
+## 2. Convert zebrafish -> human genes
+
+- Zebrafish genes will be converted to homologous Ensembl human gene IDs. 
+
+```{r}
+# Human gene IDs
+huEns <- org.Hs.egENSEMBL %>%
+  as.data.frame %>%
+  set_colnames(c("hu_entrezgene", "hu_ensembl"))
+
+# Use BioMart to retrieve zebrafish homologs for all human ensembl genes.
+huMart <- useMart("ENSEMBL_MART_ENSEMBL", "hsapiens_gene_ensembl")
+huToZeb <- getBM(c("ensembl_gene_id", "drerio_homolog_ensembl_gene"),
+                    values = unique(huEns$hu_ensembl), mart = huMart) %>%
+  set_colnames(c("human_ensembl","zeb_ensembl"))
+
+# Convert all the zebrafish IRE genes to the homologous human gene IDs
+zeb_ireGenes_h <- zeb_ireGenes %>% lapply(function(x){
+  x %>% as.data.frame %>%
+    set_colnames("zeb_ensembl") %>%
+    left_join(huToZeb) %>%
+    dplyr::filter(complete.cases(.))%>%
+    dplyr::select(-zeb_ensembl)%>%
+    as.list() %>% unname() %>% .[[1]] %>% unique
+})
+
+zeb_ireGenes_h %>% str
+```
+
+## 3. Convert mouse -> human genes
+
+- Mouse genes will be converted to homologous human Ensembl gene IDs.
+
+```{r}
+mEns <- org.Mm.egENSEMBL %>%
+  as.data.frame %>%
+  set_colnames(c("m_entrezgene","m_ensembl"))
+
+mMart <- useMart("ENSEMBL_MART_ENSEMBL", "mmusculus_gene_ensembl")
+
+mToHu <- getBM(c("ensembl_gene_id", "hsapiens_homolog_ensembl_gene"),
+                    values = unique(mEns$m_ensembl), mart = mMart) %>%
+  set_colnames(c("m_ensembl","hu_ensembl"))
+
+mou_ireGenes_h <- mou_ireGenes %>% lapply(function(x){
+  x %>% as.data.frame %>%
+    set_colnames("m_ensembl") %>%
+    left_join(mToHu) %>%
+    dplyr::filter(complete.cases(.))%>%
+    dplyr::select(-m_ensembl)%>%
+    as.list() %>% unname() %>% .[[1]] %>% unique
+})
+
+mou_ireGenes_h %>% str
+```
+
+## 4. UpSet plot
+
+- For each IRE gene set (`ire3_all`, `ire3_hq`, `ire5_all`, `ire5_hq`) we 
+will create an UpSet plot to visualise overlaps in homologous gene IDs 
+between the three species. 
+
+### 4.1. `ire3_all` (all predicted 3' IRE genes)
+
+```{r}
+ire3_all <- list(
+  Human = hum_ireGenes$ire3_all,
+  Mouse = mou_ireGenes_h$ire3_all,
+  Zebrafish = zeb_ireGenes_h$ire3_all
+)
+
+ire3_all_mat <- fromList(ire3_all)
+
+ire3_all_plot <- upset(ire3_all_mat,
+      point.size = 3, 
+      text.scale = 2)
+
+ire3_all_plot
+```
+
+### 4.2. `ire3_hq` (high quality predicted 3' IRE genes)
+
+```{r}
+ire3_hq <- list(
+  Human = hum_ireGenes$ire3_hq,
+  Mouse = mou_ireGenes_h$ire3_hq,
+  Zebrafish = zeb_ireGenes_h$ire3_hq
+)
+
+ire3_hq_mat <- fromList(ire3_hq)
+
+ire3_hq_plot <- upset(ire3_hq_mat,
+      point.size = 3, 
+      text.scale = 2)
+
+ire3_hq_plot
+```
+
+### 4.3. `ire5_all` (all predicted 5' IRE genes)
+
+```{r}
+ire5_all <- list(
+  Human = hum_ireGenes$ire5_all,
+  Mouse = mou_ireGenes_h$ire5_all,
+  Zebrafish = zeb_ireGenes_h$ire5_all
+)
+
+ire5_all_mat <- fromList(ire5_all)
+
+ire5_all_plot <- upset(ire5_all_mat,
+      point.size = 3, 
+      text.scale = 2)
+
+ire5_all_plot
+```
+
+### 4.4. `ire5_hq` (high quality predicted 5' IRE genes)
+
+```{r}
+ire5_hq <- list(
+  Human = hum_ireGenes$ire5_hq,
+  Mouse = mou_ireGenes_h$ire5_hq,
+  Zebrafish = zeb_ireGenes_h$ire5_hq
+)
+
+ire5_hq_mat <- fromList(ire5_hq)
+
+ire5_hq_plot <- upset(ire5_hq_mat,
+      point.size = 3, 
+      text.scale = 2)
+
+ire5_hq_plot
+```
+
+## 5. IRE genes identified in all three species
+
+- The UpSet plots above showed that there were generally only a small number 
+of IRE genes which were independently identified as having an IRE in each 
+species. 
+
+- We will now look at these genes further. 
+
+- First we need to retrieve Ensembl gene annotation information including 
+the gene symbol/name and description.
+
+```{r}
+ah <- AnnotationHub() 
+ah %>%
+  subset(species == "Homo sapiens") %>%
+  subset(rdataclass == "EnsDb")
+gr <- ah[["AH64923"]]
+human_genes <- genes(gr) %>% as.data.frame
+
+colnames(human_genes)
+```
+
+### 5.1. `ire3_all`
+
+```{r}
+ire3_all_genes_all <- data.frame(human_gene_id = ire3_all$Human) %>%
+  full_join(data.frame(mouse_gene_id = ire3_all$Mouse,
+                       gene_id = ire3_all$Mouse),
+            by = c("human_gene_id"="gene_id")) %>%
+  full_join(data.frame(zebrafish_gene_id = ire3_all$Zebrafish,
+                       gene_id = ire3_all$Zebrafish),
+            by = c("human_gene_id"="gene_id")) %>%
+  dplyr::left_join(human_genes[, c("gene_id", "gene_name", "gene_biotype",
+                                   "description", "symbol")], 
+                   by = c("human_gene_id"="gene_id"))
+
+ire3_all_genes_all2 <- ire3_all_genes_all%>% 
+  dplyr::filter(!is.na(human_gene_id) & !is.na(mouse_gene_id) &
+                  !is.na(zebrafish_gene_id))
+
+ire3_all_genes_all2 %>% as_tibble
+```
+
+- As the table above shows, there are `r nrow(ire3_all_genes_all2)` genes 
+which have had 3' IREs identified in all three species. 
+
+### 5.2. `ire3_hq`
+
+```{r}
+ire3_hq_genes_hq <- data.frame(human_gene_id = ire3_hq$Human) %>%
+  full_join(data.frame(mouse_gene_id = ire3_hq$Mouse,
+                       gene_id = ire3_hq$Mouse),
+            by = c("human_gene_id"="gene_id")) %>%
+  full_join(data.frame(zebrafish_gene_id = ire3_hq$Zebrafish,
+                       gene_id = ire3_hq$Zebrafish),
+            by = c("human_gene_id"="gene_id")) %>%
+  dplyr::left_join(human_genes[, c("gene_id", "gene_name", "gene_biotype",
+                                   "description", "symbol")], 
+                   by = c("human_gene_id"="gene_id"))
+
+ire3_hq_genes_hq2 <- ire3_hq_genes_hq%>% 
+  dplyr::filter(!is.na(human_gene_id) & !is.na(mouse_gene_id) &
+                  !is.na(zebrafish_gene_id))
+
+ire3_hq_genes_hq2
+```
+
+- The only high-quality 3' IRE which has been identified in all three species 
+is transferrin receptor (TFRC). 
+
+### 5.3. `ire5_all`
+
+```{r}
+ire5_all_genes_all <- data.frame(human_gene_id = ire5_all$Human) %>%
+  full_join(data.frame(mouse_gene_id = ire5_all$Mouse,
+                       gene_id = ire5_all$Mouse),
+            by = c("human_gene_id"="gene_id")) %>%
+  full_join(data.frame(zebrafish_gene_id = ire5_all$Zebrafish,
+                       gene_id = ire5_all$Zebrafish),
+            by = c("human_gene_id"="gene_id")) %>%
+  dplyr::left_join(human_genes[, c("gene_id", "gene_name", "gene_biotype",
+                                   "description", "symbol")], 
+                   by = c("human_gene_id"="gene_id"))
+
+ire5_all_genes_all2 <- ire5_all_genes_all%>% 
+  dplyr::filter(!is.na(human_gene_id) & !is.na(mouse_gene_id) &
+                  !is.na(zebrafish_gene_id))
+
+ire5_all_genes_all2 %>% as_tibble
+```
+
+- As the table above shows, there are `r nrow(ire5_all_genes_all2)` genes 
+which have had 5' IREs identified in all three species. 
+
+### 5.4. `ire5_hq`
+
+```{r}
+ire5_hq_genes_hq <- data.frame(human_gene_id = ire5_hq$Human) %>%
+  full_join(data.frame(mouse_gene_id = ire5_hq$Mouse,
+                       gene_id = ire5_hq$Mouse),
+            by = c("human_gene_id"="gene_id")) %>%
+  full_join(data.frame(zebrafish_gene_id = ire5_hq$Zebrafish,
+                       gene_id = ire5_hq$Zebrafish),
+            by = c("human_gene_id"="gene_id")) %>%
+  dplyr::left_join(human_genes[, c("gene_id", "gene_name", "gene_biotype",
+                                   "description", "symbol")], 
+                   by = c("human_gene_id"="gene_id"))
+
+ire5_hq_genes_hq2 <- ire5_hq_genes_hq%>% 
+  dplyr::filter(!is.na(human_gene_id) & !is.na(mouse_gene_id) &
+                  !is.na(zebrafish_gene_id))
+
+ire5_hq_genes_hq2
+```
+
+- There are two genes which had high-quality 5' IREs identified across all 
+three species, `ferritin heavy chain 1` (FTH1) and 
+`5'-aminolevulinate synthase 2` (ELAS2). 
+
+
+## Export Objects
+
+- UpSet plots
+
+```{r eval=FALSE}
+ire3_all_plot %>% graph2pdf(here("data", "ire", "comparison", "ire3_all_plot"))
+ire3_all_plot %>% graph2ppt(here("data", "ire", "comparison", "ire3_all_plot"))
+
+ire3_hq_plot %>% graph2pdf(here("data", "ire", "comparison", "ire3_hq_plot"))
+ire3_hq_plot %>% graph2ppt(here("data", "ire", "comparison", "ire3_hq_plot"))
+
+ire5_all_plot %>% graph2pdf(here("data", "ire", "comparison", "ire5_all_plot"))
+ire5_all_plot %>% graph2ppt(here("data", "ire", "comparison", "ire5_all_plot"))
+
+ire5_hq_plot %>% graph2pdf(here("data", "ire", "comparison", "ire5_hq_plot"))
+ire5_hq_plot %>% graph2ppt(here("data", "ire", "comparison", "ire5_hq_plot"))
+```
+
+- Shared genes between species
+
+```{r eval=FALSE}
+ire5_all_genes_all %>% write_csv(here("data", "ire", "comparison", 
+                                      "ire5_all_genes_all.csv"))
+ire5_hq_genes_hq %>% write_csv(here("data", "ire", "comparison", 
+                                      "ire5_hq_genes_all.csv"))
+ire3_all_genes_all %>% write_csv(here("data", "ire", "comparison", 
+                                      "ire3_all_genes_all.csv"))
+ire3_hq_genes_hq %>% write_csv(here("data", "ire", "comparison", 
+                                      "ire3_hq_genes_all.csv"))
+```
+

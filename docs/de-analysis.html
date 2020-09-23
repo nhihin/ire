@@ -1,0 +1,2029 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Nhi Hin" />
+
+<meta name="date" content="2020-04-20" />
+
+<title>Differential Gene Expression Analysis on fAD-like zebrafish dataset</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">ire</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Differential Gene Expression Analysis on fAD-like zebrafish dataset</h1>
+<h4 class="author">Nhi Hin</h4>
+<h4 class="date">2020-04-20</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-04-20
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>ire/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.1). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20200420code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20200420)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20200420code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20200420)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomnhihinforgetfulfishtree0f8be9f1c8498e071570455166f7f878f177484btargetblank0f8be9fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/nhihin/forgetfulfish/tree/0f8be9f1c8498e071570455166f7f878f177484b" target="_blank">0f8be9f</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomnhihinforgetfulfishtree0f8be9f1c8498e071570455166f7f878f177484btargetblank0f8be9fa" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/nhihin/forgetfulfish/tree/0f8be9f1c8498e071570455166f7f878f177484b" target="_blank">0f8be9f</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .RData
+    Ignored:    .Rhistory
+    Ignored:    .Trash/
+    Ignored:    .continuum/
+    Ignored:    .gnupg_pre_2.1/
+    Ignored:    .matplotlib/
+    Ignored:    .t_coffee/
+    Ignored:    Documents/.DS_Store
+    Ignored:    Documents/GitHub/.DS_Store
+    Ignored:    Documents/GitHub/praiseme/praiseme/.Rhistory
+    Ignored:    Documents/GitHub/praiseme/praiseme/.Rproj.user/
+    Ignored:    Documents/NewNotes/notes/
+    Ignored:    Documents/Pictures/
+    Ignored:    Documents/Processing/.DS_Store
+    Ignored:    Documents/Processing/examples/
+    Ignored:    Documents/Processing/libraries/
+    Ignored:    Documents/Processing/spirograph/.DS_Store
+    Ignored:    Documents/Processing/templates/
+    Ignored:    Documents/Processing/tools/
+    Ignored:    Documents/R/
+    Ignored:    Documents/Review-Article.scriv/Settings/User/
+    Ignored:    Documents/ReviewArticlePlanning.scriv/Settings/User/
+    Ignored:    Documents/Tutorial.scriv/Settings/User/
+    Ignored:    Documents/Untitled.scriv/Settings/User/
+    Ignored:    Documents/test.scriv/Settings/User/
+    Ignored:    backup/
+    Ignored:    dircreate/
+
+Untracked files:
+    Untracked:  .AnnotationHub/
+    Untracked:  .CFUserTextEncoding
+    Untracked:  .CHRONOS/
+    Untracked:  .ENA.sh.swp
+    Untracked:  .MacOSX/
+    Untracked:  .RDataTmp
+    Untracked:  .Rapp.history
+    Untracked:  .Xauthority
+    Untracked:  .adobe/
+    Untracked:  .bash_history
+    Untracked:  .bash_profile
+    Untracked:  .bash_profile-anaconda.bak
+    Untracked:  .bash_profile-miniconda3.bak
+    Untracked:  .bash_sessions/
+    Untracked:  .bashrc
+    Untracked:  .bitmonero/
+    Untracked:  .cache/
+    Untracked:  .conda/
+    Untracked:  .condarc
+    Untracked:  .config/
+    Untracked:  .cpanm/
+    Untracked:  .cups/
+    Untracked:  .dlv/
+    Untracked:  .docker/
+    Untracked:  .electrum/
+    Untracked:  .gitconfig
+    Untracked:  .gitflow_export
+    Untracked:  .gitignore
+    Untracked:  .gitignore_global
+    Untracked:  .gnupg/
+    Untracked:  .hgignore_global
+    Untracked:  .keras/
+    Untracked:  .node-gyp/
+    Untracked:  .npm/
+    Untracked:  .nx/
+    Untracked:  .oh-my-zsh/
+    Untracked:  .oracle_jre_usage/
+    Untracked:  .qt/
+    Untracked:  .rnd
+    Untracked:  .rstudio-desktop/
+    Untracked:  .s1.sh
+    Untracked:  .savant/
+    Untracked:  .serverauth.1056
+    Untracked:  .serverauth.1208
+    Untracked:  .serverauth.16273
+    Untracked:  .serverauth.1656
+    Untracked:  .serverauth.18995
+    Untracked:  .serverauth.20301
+    Untracked:  .serverauth.35255
+    Untracked:  .serverauth.38277
+    Untracked:  .serverauth.40350
+    Untracked:  .serverauth.4262
+    Untracked:  .serverauth.4315
+    Untracked:  .serverauth.4358
+    Untracked:  .serverauth.57832
+    Untracked:  .serverauth.63886
+    Untracked:  .serverauth.79286
+    Untracked:  .serverauth.81376
+    Untracked:  .serverauth.920
+    Untracked:  .ssh/
+    Untracked:  .stCommitMsg
+    Untracked:  .subversion/
+    Untracked:  .sudo_as_admin_successful
+    Untracked:  .vim/
+    Untracked:  .viminfo
+    Untracked:  .vscode/
+    Untracked:  .yjp/
+    Untracked:  .zcompdump-ELIZA-5.2
+    Untracked:  .zcompdump-ELIZA-5.3
+    Untracked:  .zsh-update
+    Untracked:  .zsh_history
+    Untracked:  .zshrc
+    Untracked:  0.361366553072916.tmp
+    Untracked:  0.547629240007279.tmp
+    Untracked:  0.561695152931986.tmp
+    Untracked:  0.738235249024914.tmp
+    Untracked:  496128434
+    Untracked:  Applications/
+    Untracked:  BSgenome.Drerio.UCSC.danRer11/
+    Untracked:  Boostnote/
+    Untracked:  Box Sync/
+    Untracked:  Box/
+    Untracked:  CytoscapeConfiguration/
+    Untracked:  Desktop/
+    Untracked:  Documents/.localized
+    Untracked:  Documents/GitHub/ire/
+    Untracked:  Documents/GitHub/notes/
+    Untracked:  Documents/GitHub/praiseme/praiseme/R/praiseme.R
+    Untracked:  Documents/GitHub/praiseme/praiseme/man/praiseme.Rd
+    Untracked:  Downloads/
+    Untracked:  Drosophila_melanogaster.BDGP6.ncrna.fa
+    Untracked:  FKBP5-24mths.png
+    Untracked:  FKBP5-6mths.png
+    Untracked:  FKBP5-Oldfish-Mutants.png
+    Untracked:  FKBP5-Oldfish_Wt.png
+    Untracked:  Google Drive/
+    Untracked:  Library/
+    Untracked:  Monero/
+    Untracked:  Movies/
+    Untracked:  Music/
+    Untracked:  PSEN1-Oldfish-Mutants.png
+    Untracked:  PSEN1-Oldfish-Wt.png
+    Untracked:  Pictures/
+    Untracked:  Public/
+    Untracked:  R-3.4.1.pkg
+    Untracked:  Research/
+    Untracked:  RightFont/
+    Untracked:  Sashimi-24mth.png
+    Untracked:  Sashimi-6mth.png
+    Untracked:  Sashimi.png
+    Untracked:  Sashimi2.png
+    Untracked:  Sashimi3.png
+    Untracked:  TableS13-ZScores.xlsx
+    Untracked:  Untitled.csv
+    Untracked:  Untitled.pdf
+    Untracked:  Zebrafish_RNAseq_DE/
+    Untracked:  _book/
+    Untracked:  _bookdown.yml
+    Untracked:  _bookdown_files/
+    Untracked:  anaconda/
+    Untracked:  bib/
+    Untracked:  bin/
+    Untracked:  body.Rmd
+    Untracked:  bookdownplus.Rproj
+    Untracked:  cpp/
+    Untracked:  downloadUrl.gff
+    Untracked:  example/
+    Untracked:  gekko/
+    Untracked:  gitRepos/
+    Untracked:  go/
+    Untracked:  graph.pdf
+    Untracked:  gridsearch.zip
+    Untracked:  gridsearch/
+    Untracked:  homer/
+    Untracked:  hub
+    Untracked:  igv/
+    Untracked:  images/
+    Untracked:  index.Rmd
+    Untracked:  miniconda3/
+    Untracked:  ngsReports_Fastqc.html
+    Untracked:  nhi.dbj
+    Untracked:  nhi/
+    Untracked:  nhisci/
+    Untracked:  old_Box/
+    Untracked:  old_Box_2/
+    Untracked:  pathwayDGE.rds
+    Untracked:  permutedStats-actualModules.RData
+    Untracked:  pkg/
+    Untracked:  programs/
+    Untracked:  ran.csv
+    Untracked:  rmd/
+    Untracked:  runPipeline.sh
+    Untracked:  sav.R
+    Untracked:  script2.sh
+    Untracked:  settings.env
+    Untracked:  src/
+    Untracked:  steve.R
+    Untracked:  style/
+    Untracked:  testData/
+    Untracked:  tex/
+    Untracked:  untitled.R
+    Untracked:  zebrafish.png
+    Untracked:  zshrc
+
+Unstaged changes:
+    Modified:   Documents/GitHub/Zebrafish_RNAseq_DE
+    Modified:   Documents/GitHub/forgetfulfish
+    Modified:   Documents/GitHub/k97fsZebrafishAnalysis
+    Modified:   Documents/GitHub/praiseme/praiseme/DESCRIPTION
+    Modified:   Documents/GitHub/praiseme/praiseme/NAMESPACE
+    Deleted:    Documents/GitHub/praiseme/praiseme/R/hello.R
+    Deleted:    Documents/GitHub/praiseme/praiseme/man/hello.Rd
+    Modified:   Documents/GitHub/praiseme/praiseme/praiseme.Rproj
+    Modified:   Documents/GitHub/q96k97
+    Deleted:    README.md
+    Deleted:    transcriptQuantification.Rmd
+
+Staged changes:
+    New:        Documents/.NH-ConferencePoster.pdf.icloud
+    New:        Documents/2017-09-29.txt
+    New:        Documents/COMBINE_Poster.gif
+    New:        Documents/Discussion.md
+    New:        Documents/EndNote/Styles/Harvard_UofA__Style_Manual_Australia_6th_edn__Surname_only_Jan14 Copy Copy.ens
+    New:        Documents/GitHub/2019_Lardelli_AllWT_6month_RNASeq
+    New:        Documents/GitHub/Zebrafish_RNAseq_DE
+    New:        Documents/GitHub/forgetfulfish
+    New:        Documents/GitHub/futura/FuturaPTBold.otf
+    New:        Documents/GitHub/futura/FuturaPTBoldOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTBook.otf
+    New:        Documents/GitHub/futura/FuturaPTBookOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTCondBold.otf
+    New:        Documents/GitHub/futura/FuturaPTCondBoldOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTCondBook.otf
+    New:        Documents/GitHub/futura/FuturaPTCondBookOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTCondExtraBold.otf
+    New:        Documents/GitHub/futura/FuturaPTCondExtraBoldOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTCondMedium.otf
+    New:        Documents/GitHub/futura/FuturaPTCondMediumOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTDemi.otf
+    New:        Documents/GitHub/futura/FuturaPTDemiOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTExtraBold.otf
+    New:        Documents/GitHub/futura/FuturaPTExtraBoldOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTHeavy.otf
+    New:        Documents/GitHub/futura/FuturaPTHeavyOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTLight.otf
+    New:        Documents/GitHub/futura/FuturaPTLightOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTMedium.otf
+    New:        Documents/GitHub/futura/FuturaPTMediumOblique.otf
+    New:        Documents/GitHub/k97fsZebrafishAnalysis
+    New:        Documents/GitHub/praiseme/praiseme/.Rbuildignore
+    New:        Documents/GitHub/praiseme/praiseme/DESCRIPTION
+    New:        Documents/GitHub/praiseme/praiseme/NAMESPACE
+    New:        Documents/GitHub/praiseme/praiseme/R/hello.R
+    New:        Documents/GitHub/praiseme/praiseme/man/hello.Rd
+    New:        Documents/GitHub/praiseme/praiseme/praiseme.Rproj
+    New:        Documents/GitHub/q96k97
+    New:        Documents/K97 L-plastin immuno figure V2/Slide1.tiff
+    New:        Documents/K97 L-plastin immuno figure V2/Slide2.tiff
+    New:        Documents/K97 L-plastin immuno figure V2/Slide3.tiff
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/09719fe9a8ba4760996aa02aeaeece8a.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/09719fe9a8ba4760996aa02aeaeece8a.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/8857a9885273430a8be471fb4a977c0f.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/8857a9885273430a8be471fb4a977c0f.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/Info.ulgroup
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/de8d51154b59494d8b0a4ab28abbac51.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/de8d51154b59494d8b0a4ab28abbac51.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/efa8615f86f64b8283492b269a4fc746.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/efa8615f86f64b8283492b269a4fc746.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/5e09bb30aa7042449b630dae2faab727.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/5e09bb30aa7042449b630dae2faab727.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/6270e917773b4409b44ffc30a0c0d4f9.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/6270e917773b4409b44ffc30a0c0d4f9.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/Info.ulgroup
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/f05b99ea57a4428e855e008465057e3f.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/f05b99ea57a4428e855e008465057e3f.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/Info.ulgroup
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/5c21d9eb2cd443c4a1aafabc325c13b5.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/5c21d9eb2cd443c4a1aafabc325c13b5.ulysses/Media/0.iCloud On My Mac.4fd7a37dc72544aa8ad6ad2579652a02.jpg
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/5c21d9eb2cd443c4a1aafabc325c13b5.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/5e53401c53af4596acb2e038c79e3eab.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/5e53401c53af4596acb2e038c79e3eab.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/Info.ulgroup
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/b292d4b17521411d9626b0cb1797fe85.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/b292d4b17521411d9626b0cb1797fe85.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/Info.ulgroup
+    New:        Documents/Library/Info.ulgroup
+    New:        Documents/Library/Root.plist
+    New:        Documents/Library/Trash-ultrash/Info.ultrash
+    New:        Documents/Library/Unfiled-ulgroup/532af22959ba4fc092f08ee0499b060a.ulysses/Content.xml
+    New:        Documents/Library/Unfiled-ulgroup/532af22959ba4fc092f08ee0499b060a.ulysses/Text.txt
+    New:        Documents/Library/Unfiled-ulgroup/Info.ulgroup
+    New:        Documents/Library/Unfiled-ulgroup/b2d4e1a5449e4aab8431ed1aaaf8e6e3.ulysses/Content.xml
+    New:        Documents/Library/Unfiled-ulgroup/b2d4e1a5449e4aab8431ed1aaaf8e6e3.ulysses/Text.txt
+    New:        Documents/Minimal Wardrobe.md
+    New:        Documents/My EndNote Library - NG.txt
+    New:        Documents/My EndNote Library 3.rtf
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/csort.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/csort.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/csort.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/db.opt
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/jterms.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/jterms.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/jterms.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/misc.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/misc.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/misc.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/pdf_index.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/pdf_index.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/pdf_index.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs_ext.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs_ext.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs_ext.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/terms.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/terms.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/terms.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/csort.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/csort.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/csort.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/db.opt
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/jterms.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/jterms.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/jterms.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/misc.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/misc.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/misc.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/pdf_index.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/pdf_index.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/pdf_index.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs_ext.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs_ext.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs_ext.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/terms.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/terms.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/terms.frm
+    New:        Documents/My EndNote Library-Dupl.enl
+    New:        Documents/My EndNote Library-Dupl.txt
+    New:        Documents/My EndNote Library.Data/rdb/csort.MYD
+    New:        Documents/My EndNote Library.Data/rdb/csort.MYI
+    New:        Documents/My EndNote Library.Data/rdb/csort.frm
+    New:        Documents/My EndNote Library.Data/rdb/db.opt
+    New:        Documents/My EndNote Library.Data/rdb/jterms.MYD
+    New:        Documents/My EndNote Library.Data/rdb/jterms.MYI
+    New:        Documents/My EndNote Library.Data/rdb/jterms.frm
+    New:        Documents/My EndNote Library.Data/rdb/misc.MYD
+    New:        Documents/My EndNote Library.Data/rdb/misc.MYI
+    New:        Documents/My EndNote Library.Data/rdb/misc.frm
+    New:        Documents/My EndNote Library.Data/rdb/pdf_index.MYD
+    New:        Documents/My EndNote Library.Data/rdb/pdf_index.MYI
+    New:        Documents/My EndNote Library.Data/rdb/pdf_index.frm
+    New:        Documents/My EndNote Library.Data/rdb/refs.MYD
+    New:        Documents/My EndNote Library.Data/rdb/refs.MYI
+    New:        Documents/My EndNote Library.Data/rdb/refs.frm
+    New:        Documents/My EndNote Library.Data/rdb/refs_ext.MYD
+    New:        Documents/My EndNote Library.Data/rdb/refs_ext.MYI
+    New:        Documents/My EndNote Library.Data/rdb/refs_ext.frm
+    New:        Documents/My EndNote Library.Data/rdb/terms.MYD
+    New:        Documents/My EndNote Library.Data/rdb/terms.MYI
+    New:        Documents/My EndNote Library.Data/rdb/terms.frm
+    New:        Documents/My EndNote Library.Data/tdb/csort.MYD
+    New:        Documents/My EndNote Library.Data/tdb/csort.MYI
+    New:        Documents/My EndNote Library.Data/tdb/csort.frm
+    New:        Documents/My EndNote Library.Data/tdb/db.opt
+    New:        Documents/My EndNote Library.Data/tdb/jterms.MYD
+    New:        Documents/My EndNote Library.Data/tdb/jterms.MYI
+    New:        Documents/My EndNote Library.Data/tdb/jterms.frm
+    New:        Documents/My EndNote Library.Data/tdb/misc.MYD
+    New:        Documents/My EndNote Library.Data/tdb/misc.MYI
+    New:        Documents/My EndNote Library.Data/tdb/misc.frm
+    New:        Documents/My EndNote Library.Data/tdb/pdf_index.MYD
+    New:        Documents/My EndNote Library.Data/tdb/pdf_index.MYI
+    New:        Documents/My EndNote Library.Data/tdb/pdf_index.frm
+    New:        Documents/My EndNote Library.Data/tdb/refs.MYD
+    New:        Documents/My EndNote Library.Data/tdb/refs.MYI
+    New:        Documents/My EndNote Library.Data/tdb/refs.frm
+    New:        Documents/My EndNote Library.Data/tdb/refs_ext.MYD
+    New:        Documents/My EndNote Library.Data/tdb/refs_ext.MYI
+    New:        Documents/My EndNote Library.Data/tdb/refs_ext.frm
+    New:        Documents/My EndNote Library.Data/tdb/terms.MYD
+    New:        Documents/My EndNote Library.Data/tdb/terms.MYI
+    New:        Documents/My EndNote Library.Data/tdb/terms.frm
+    New:        Documents/My EndNote Library.enl
+    New:        Documents/My EndNote Library.htm
+    New:        Documents/NG.rtf
+    New:        Documents/NewNotes/boostnote.json
+    New:        Documents/Pages from sankeyDiagram.pdf
+    New:        Documents/Processing/books/books.pde
+    New:        Documents/Processing/books/hi.pde
+    New:        Documents/Processing/books2/books2.pde
+    New:        Documents/Processing/learning/learning.pde
+    New:        Documents/Processing/modes/PythonMode/LICENSE.txt
+    New:        Documents/Processing/modes/PythonMode/application/macosx/Info.plist.tmpl
+    New:        Documents/Processing/modes/PythonMode/application/macosx/dialogs.applescript
+    New:        Documents/Processing/modes/PythonMode/application/macosx/findjava
+    New:        Documents/Processing/modes/PythonMode/application/macosx/sketch.icns
+    New:        Documents/Processing/modes/PythonMode/application/windows/sketch.ico
+    New:        Documents/Processing/modes/PythonMode/examples/Advanced/KeyCodes/KeyCodes.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Advanced/KeyCodes/sketch.properties
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Camera/MoveEye/MoveEye.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Camera/Orthographic/Orthographic.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Camera/Perspective/Perspective.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/Brightness/Brightness.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/ColorVariables/ColorVariables.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/Hue/Hue.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/LinearGradient/LinearGradient.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/RadialGradient/RadialGradient.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/Relativity/Relativity.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/Saturation/Saturation.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/WaveGradient/WaveGradient.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Control/BooleanOperators/BooleanOperators.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Control/Conditionals1/Conditionals1.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Control/Conditionals2/Conditionals2.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Control/EmbeddedIteration/EmbeddedIteration.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Control/Iteration/Iteration.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/DatatypeConversion/DatatypeConversion.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/DatatypeConversion/data/Georgia.ttf
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/IntegersFloats/IntegersFloats.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/Strings/Strings.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/Strings/data/Georgia.ttf
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/TrueFalse/TrueFalse.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/VariableScope/VariableScope.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/Variables/Variables.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/Bezier/Bezier.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/PieChart/PieChart.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/PointsLines/PointsLines.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/Primitives3D/Primitives3D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/RegularPolygon/RegularPolygon.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/ShapePrimitives/ShapePrimitives.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/Star/Star.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/TriangleStrip/TriangleStrip.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Alphamask/Alphamask.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Alphamask/data/mask.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Alphamask/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/BackgroundImage/BackgroundImage.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/BackgroundImage/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/CreateImage/CreateImage.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/LoadDisplayImage/LoadDisplayImage.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/LoadDisplayImage/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Pointillism/Pointillism.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Pointillism/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/RequestImage.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0000.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0001.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0002.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0003.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0004.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0005.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0006.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0007.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0008.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0009.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0010.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0011.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Transparency/Transparency.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Transparency/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Clock/Clock.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Constrain/Constrain.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Easing/Easing.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Keyboard/Keyboard.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/KeyboardFunctions/KeyboardFunctions.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Milliseconds/Milliseconds.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Mouse1D/Mouse1D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Mouse2D/Mouse2D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/MouseFunctions/MouseFunctions.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/MousePress/MousePress.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/MouseSignals/MouseSignals.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/StoringInput/StoringInput.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/Directional/Directional.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/Mixture/Mixture.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/MixtureGrid/MixtureGrid.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/OnOff/OnOff.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/Reflection/Reflection.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/Spot/Spot.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lists/List/List.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lists/List2D/List2D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lists/ListObjects/ListObjects.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lists/ListObjects/module.py
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/AdditiveWave/AdditiveWave.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Arctangent/Arctangent.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Arctangent/eye.py
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Distance1D/Distance1D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Distance2D/Distance2D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/DoubleRandom/DoubleRandom.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Graphing2DEquation/Graphing2DEquation.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/IncrementDecrement/IncrementDecrement.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Interpolate/Interpolate.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Map/Map.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Noise1D/Noise1D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Noise2D/Noise2D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Noise3D/Noise3D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/NoiseWave/NoiseWave.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/OperatorPrecedence/OperatorPrecedence.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/PolarToCartesian/PolarToCartesian.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Random/Random.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/RandomGaussian/RandomGaussian.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Sine/Sine.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/SineCosine/SineCosine.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/SineWave/SineWave.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/CompositeObjects/CompositeObjects.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/CompositeObjects/egg.py
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/CompositeObjects/egg_ring.py
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/CompositeObjects/ring.py
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/Inheritance/Inheritance.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/MultipleConstructors/MultipleConstructors.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/Objects/Objects.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/DisableStyle/DisableStyle.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/DisableStyle/data/bot1.svg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/GetChild/GetChild.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/GetChild/data/usa-wikipedia.svg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplayOBJ/LoadDisplayOBJ.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplayOBJ/data/rocket.mtl
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplayOBJ/data/rocket.obj
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplayOBJ/data/rocket.png
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplaySVG/LoadDisplaySVG.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplaySVG/data/bot1.svg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/ScaleShape/ScaleShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/ScaleShape/data/bot1.svg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/Coordinates/Coordinates.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/CreateGraphics/CreateGraphics.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/CreateGraphics/data/mask.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/CreateGraphics/data/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/Functions/Functions.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/Loop/Loop.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/NoLoop/NoLoop.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/Recursion/Recursion.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/Redraw/Redraw.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/SetupDraw/SetupDraw.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/StatementsComments/StatementsComments.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/WidthHeight/WidthHeight.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/Arm/Arm.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/Rotate/Rotate.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/RotatePushPop/RotatePushPop.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/RotateXY/RotateXY.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/Scale/Scale.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/Translate/Translate.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/FiveWaysOfWritingText/FiveWaysOfWritingText.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/FiveWaysOfWritingText/sketch.properties
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/Letters/Letters.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/Letters/data/Georgia.ttf
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/Words/Words.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/Words/data/Georgia.ttf
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Web/EmbeddedLinks/EmbeddedLinks.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Web/LoadingImages/LoadingImages.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/ControlP5/Textfield/Textfield.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/Fisica/ContactListener/ContactListener.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/MSAFluid/MSAFluid.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/MSAFluid/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/MSAFluid/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BackgroundSubtraction/BackgroundSubtraction.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BackgroundSubtraction/data/.street.mov.icloud
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BrightestPoint/BrightestPoint.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BrightestPoint/robot_light.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BrightnessContrast/BrightnessContrast.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BrightnessContrast/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/CalibrationDemo/CalibrationDemo.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/CalibrationDemo/data/checkerboard.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/ColorChannels/.green_object.png.icloud
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/ColorChannels/ColorChannels.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DepthFromStereo/DepthFromStereo.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DepthFromStereo/scene_l.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DepthFromStereo/scene_r.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DilationAndErosion/DilationAndErosion.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DilationAndErosion/line_drawing.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DilationAndErosion/pen_sketch.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FaceDetection/FaceDetection.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FaceDetection/data/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FaceDetection/data/test.png
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FaceDetection/data/testImage.png
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FaceDetection/data/transparent_test.png
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FilterImages/FilterImages.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FilterImages/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindContours/FindContours.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindContours/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindEdges/FindEdges.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindEdges/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindHistogram/FindHistogram.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindHistogram/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/HistogramSkinDetection/HistogramSkinDetection.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/HistogramSkinDetection/data/cb-cr.png
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/HistogramSkinDetection/data/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/LiveCamTest/LiveCamTest.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/LiveCamTest/data/haarcascade_frontalface_alt.xml
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/beads/Lesson01_AudioContext/Lesson01_AudioContext.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/beads/Lesson04_SamplePlayer/Lesson04_SamplePlayer.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/ttslib/ttstest/ttstest.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/BoxClock/BoxClock.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/LowLevelGL/LowLevelGL.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/LowLevelGL/data/frag.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/LowLevelGL/data/vert.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Particles/Particles.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Particles/data/sprite.png
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Particles/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Particles/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Tentacles/Tentacles.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Tentacles/segment.py
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Tentacles/tentacle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Yellowtail/Yellowtail.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Yellowtail/gesture.py
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Yellowtail/vec3f.py
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/IntAndFloat/IntAndFloat.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/IntAndFloat/sketch.properties
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/LiteralColors/LiteralColors.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/LiteralColors/sketch.properties
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/WithStatements/WithStatements.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/WithStatements/sketch.properties
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/AnimatedSprite.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/animation.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0000.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0001.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0002.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0003.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0004.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0005.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0006.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0007.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0008.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0009.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0010.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0011.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0012.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0013.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0014.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0015.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0016.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0017.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0018.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0019.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0020.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0021.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0022.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0023.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0024.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0025.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0026.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0027.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0028.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0029.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0030.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0031.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0032.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0033.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0034.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0035.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0036.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0037.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0000.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0001.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0002.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0003.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0004.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0005.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0006.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0007.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0008.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0009.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0010.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0011.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0012.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0013.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0014.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0015.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0016.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0017.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0018.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0019.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0020.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0021.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0022.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0023.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0024.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0025.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0026.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0027.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0028.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0029.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0030.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0031.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0032.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0033.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0034.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0035.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0036.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0037.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0038.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0039.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0040.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0041.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0042.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0043.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0044.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0045.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0046.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0047.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0048.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0049.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0050.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0051.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0052.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0053.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0054.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0055.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0056.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0057.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0058.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0059.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/Sequential.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0000.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0001.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0002.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0003.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0004.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0005.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0006.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0007.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0008.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0009.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0010.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0011.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/ContinuousLines/ContinuousLines.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/BeginEndContour/BeginEndContour.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/GroupPShape/GroupPShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/ParticleSystemPShape/ParticleSystemPShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/ParticleSystemPShape/data/sprite.png
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/ParticleSystemPShape/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/ParticleSystemPShape/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PathPShape/PathPShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShape/PolygonPShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP/PolygonPShapeOOP.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP/star.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP2/PolygonPShapeOOP2.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP2/polygon.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP3/PolygonPShapeOOP3.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP3/polygon.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PrimitivePShape/PrimitivePShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/WigglePShape/WigglePShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/WigglePShape/wiggler.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Koch/Koch.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Koch/koch_fractal.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Koch/koch_line.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Mandelbrot/Mandelbrot.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseSnowflake/PenroseSnowflake.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseSnowflake/l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseSnowflake/penrose_snowflake_l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseTile/PenroseTile.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseTile/l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseTile/penrose_l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Pentigree/Pentigree.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Pentigree/l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Pentigree/pentigree_l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Tree/Tree.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Button/Button.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Handles/Handles.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Handles/handle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Rollover/Rollover.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Scrollbar/Scrollbar.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Scrollbar/data/seedBottom.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Scrollbar/data/seedTop.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Scrollbar/hscrollbar.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/Icosahedra/Icosahedra.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/Icosahedra/icosahedron.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/Icosahedra/shape3d.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/NoiseSphere/NoiseSphere.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/NoiseSphere/hair.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/RGBCube/RGBCube.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/ShapeTransform/ShapeTransform.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/SpaceJunk/SpaceJunk.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/SpaceJunk/cube.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/Toroid/Toroid.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/Vertices/Vertices.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Blending/Blending.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Blending/data/layer1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Blending/data/layer2.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Blur/Blur.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Blur/data/moon.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Brightness/Brightness.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Brightness/data/moon-wide.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Convolution/Convolution.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Convolution/data/moon-wide.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/EdgeDetection/EdgeDetection.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/EdgeDetection/data/moon.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Explode/Explode.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Explode/data/eames.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Extrusion/Extrusion.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Extrusion/data/ystone08.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Histogram/Histogram.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Histogram/data/frontier.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/LinearImage/LinearImage.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/LinearImage/data/sea.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/PixelArray/PixelArray.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/PixelArray/data/sea.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Zoom/Zoom.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Zoom/data/ystone08.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Follow1/Follow1.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Follow2/Follow2.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Follow3/Follow3.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Reach1/Reach1.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Reach2/Reach2.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Reach3/Reach3.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Tickle/Tickle.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Tickle/data/Georgia.ttf
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Bounce/Bounce.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/BouncyBubbles/BouncyBubbles.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/BouncyBubbles/ball.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Brownian/Brownian.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/CircleCollision/CircleCollision.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/CircleCollision/ball.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/CubesWithinCube/CubesWithinCube.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/CubesWithinCube/cube.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Linear/Linear.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Morph/Morph.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/MovingOnCurves/MovingOnCurves.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Reflection1/Reflection1.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Reflection2/Reflection2.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Reflection2/ground.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Reflection2/orb.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Pattern/Pattern.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Pulses/Pulses.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/BlurFilter/BlurFilter.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/BlurFilter/data/blur.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Conway/Conway.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Conway/data/conway.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/CustomBlend.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/burn.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/difference.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/dodge.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/leaves.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/overlay.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Deform/Deform.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Deform/data/deform.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Deform/data/tex1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/DomeProjection/DomeProjection.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/DomeProjection/data/cubemapfrag.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/DomeProjection/data/cubemapvert.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/EdgeDetect/EdgeDetect.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/EdgeDetect/data/edges.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/EdgeDetect/data/leaves.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/EdgeFilter/EdgeFilter.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/EdgeFilter/data/edges.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/GlossyFishEye/GlossyFishEye.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/GlossyFishEye/data/FishEye.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/GlossyFishEye/data/GlossyFrag.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/GlossyFishEye/data/GlossyVert.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ImageMask/ImageMask.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ImageMask/data/leaves.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ImageMask/data/mask.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Landscape/Landscape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Landscape/data/landscape.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Monjori/Monjori.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Monjori/data/monjori.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Nebula/Nebula.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Nebula/data/nebula.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/SepBlur/SepBlur.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/SepBlur/data/blur.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ToonShading/ToonShading.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ToonShading/data/ToonFrag.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ToonShading/data/ToonVert.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Chain/Chain.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Flocking/Flocking.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Flocking/boid.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Flocking/flock.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/ForcesWithVectors/ForcesWithVectors.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/ForcesWithVectors/liquid.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/ForcesWithVectors/mover.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/GravitationalAttraction3D/GravitationalAttraction3D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/GravitationalAttraction3D/planet.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/GravitationalAttraction3D/sun.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/MultipleParticleSystems/MultipleParticleSystems.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/MultipleParticleSystems/crazy_particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/MultipleParticleSystems/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/MultipleParticleSystems/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SimpleParticleSystem/SimpleParticleSystem.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SimpleParticleSystem/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SimpleParticleSystem/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SmokeParticleSystem/SmokeParticleSystem.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SmokeParticleSystem/data/texture.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SmokeParticleSystem/data/texture.png
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SmokeParticleSystem/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SmokeParticleSystem/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SoftBody/SoftBody.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Spring/Spring.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Springs/Springs.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureCube/TextureCube.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureCube/data/berlin-1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureCylinder/TextureCylinder.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureCylinder/data/berlin-1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureQuad/TextureQuad.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureQuad/data/berlin-1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureSphere/TextureSphere.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureSphere/data/world32k.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureTriangle/TextureTriangle.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureTriangle/data/berlin-1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Vectors/AccelerationWithVectors/AccelerationWithVectors.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Vectors/AccelerationWithVectors/mover.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Vectors/BouncingBall/BouncingBall.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Vectors/VectorMath/VectorMath.pyde
+    New:        Documents/Processing/modes/PythonMode/formatter/LICENSE.autopep8
+    New:        Documents/Processing/modes/PythonMode/formatter/LICENSE.pep8
+    New:        Documents/Processing/modes/PythonMode/formatter/autopep8.py
+    New:        Documents/Processing/modes/PythonMode/formatter/format_server.py
+    New:        Documents/Processing/modes/PythonMode/formatter/pep8.py
+    New:        Documents/Processing/modes/PythonMode/keywords.txt
+    New:        Documents/Processing/modes/PythonMode/mode.properties
+    New:        Documents/Processing/modes/PythonMode/mode/LICENSE.jython
+    New:        Documents/Processing/modes/PythonMode/mode/PythonMode.jar
+    New:        Documents/Processing/modes/PythonMode/mode/guava-17.0.jar
+    New:        Documents/Processing/modes/PythonMode/mode/jython.jar
+    New:        Documents/Processing/modes/PythonMode/src.zip
+    New:        Documents/Processing/modes/PythonMode/theme/buttons-2x.png
+    New:        Documents/Processing/modes/PythonMode/theme/buttons.png
+    New:        Documents/Processing/modes/PythonMode/theme/mode-2x.png
+    New:        Documents/Processing/modes/PythonMode/theme/mode.png
+    New:        Documents/Processing/modes/PythonMode/theme/splash.png
+    New:        Documents/Processing/pulsar/pulsar.pde
+    New:        Documents/Processing/rotating_circles/rotating_circles.pde
+    New:        Documents/Processing/satellite/satellite.pde
+    New:        Documents/Processing/satellites/satellites.pde
+    New:        Documents/Processing/sketch_170417b/sketch_170417b.pde
+    New:        Documents/Processing/sketch_170417c/sketch_170417c.pde
+    New:        Documents/Processing/sketch_170506a/sketch_170506a.pde
+    New:        Documents/Processing/spirograph/spirograph.pde
+    New:        Documents/ProposalBib.rtf
+    New:        Documents/Results2.html
+    New:        Documents/Review-Article.scriv/Files/Docs/4.pdf
+    New:        Documents/Review-Article.scriv/Files/Docs/4_synopsis.txt
+    New:        Documents/Review-Article.scriv/Files/Docs/docs.checksum
+    New:        Documents/Review-Article.scriv/Files/ProjectNotes/index.xml
+    New:        Documents/Review-Article.scriv/Files/binder.autosave
+    New:        Documents/Review-Article.scriv/Files/binder.backup
+    New:        Documents/Review-Article.scriv/Files/search.indexes
+    New:        Documents/Review-Article.scriv/Files/version.txt
+    New:        Documents/Review-Article.scriv/QuickLook/Preview.html
+    New:        Documents/Review-Article.scriv/QuickLook/Thumbnail.jpg
+    New:        Documents/Review-Article.scriv/Review-Article.scrivx
+    New:        Documents/Review-Article.scriv/Settings/ui.plist
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/11.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/11_notes.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/11_synopsis.txt
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/12.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/29.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/34.pdf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/6.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/6_notes.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/docs.checksum
+    New:        Documents/ReviewArticlePlanning.scriv/Files/ProjectNotes/index.xml
+    New:        Documents/ReviewArticlePlanning.scriv/Files/binder.autosave
+    New:        Documents/ReviewArticlePlanning.scriv/Files/binder.backup
+    New:        Documents/ReviewArticlePlanning.scriv/Files/search.indexes
+    New:        Documents/ReviewArticlePlanning.scriv/Files/version.txt
+    New:        Documents/ReviewArticlePlanning.scriv/QuickLook/Preview.html
+    New:        Documents/ReviewArticlePlanning.scriv/QuickLook/Thumbnail.jpg
+    New:        Documents/ReviewArticlePlanning.scriv/QuickLook/qlbg.jpg
+    New:        Documents/ReviewArticlePlanning.scriv/ReviewArticlePlanning.scrivx
+    New:        Documents/ReviewArticlePlanning.scriv/Settings/compile.plist
+    New:        Documents/ReviewArticlePlanning.scriv/Settings/template_compile.plist
+    New:        Documents/ReviewArticlePlanning.scriv/Settings/templateinfo.xml
+    New:        Documents/ReviewArticlePlanning.scriv/Settings/ui.plist
+    New:        Documents/September Update 2018.md
+    New:        Documents/The following Research objectives outlined in the Research Proposal have been achieved.rtf
+    New:        Documents/The following Research objectives outlined in the Research Proposal have been achieved/Backup of The following Research objectives outlined in the Research Proposal have been achieved.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/10_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/11.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/11_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/13.links
+    New:        Documents/Tutorial.scriv/Files/Docs/13.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/13_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/14.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/17.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/17_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/18_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/19.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/20.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/21.links
+    New:        Documents/Tutorial.scriv/Files/Docs/21.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/22.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/24.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/24_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/26.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/26_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/27.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/28.wav
+    New:        Documents/Tutorial.scriv/Files/Docs/29_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/30.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/31.links
+    New:        Documents/Tutorial.scriv/Files/Docs/31.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/32.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/36.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/37.pdf
+    New:        Documents/Tutorial.scriv/Files/Docs/37_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/4.links
+    New:        Documents/Tutorial.scriv/Files/Docs/4.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/41.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/42.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/42_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/44.jpg
+    New:        Documents/Tutorial.scriv/Files/Docs/47.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/47_notes.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/48_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/4_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/5.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/50.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/51.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/52.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/52_notes.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/53.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/54.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/56.links
+    New:        Documents/Tutorial.scriv/Files/Docs/56.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/57.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/57_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/59.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/6.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/60.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/60_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/62.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/65.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/66.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/67.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/6_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/7.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/7_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/8.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/docs.checksum
+    New:        Documents/Tutorial.scriv/Files/ProjectNotes/index.xml
+    New:        Documents/Tutorial.scriv/Files/binder.autosave
+    New:        Documents/Tutorial.scriv/Files/binder.backup
+    New:        Documents/Tutorial.scriv/Files/search.indexes
+    New:        Documents/Tutorial.scriv/Files/version.txt
+    New:        Documents/Tutorial.scriv/QuickLook/Preview.html
+    New:        Documents/Tutorial.scriv/QuickLook/Thumbnail.jpg
+    New:        Documents/Tutorial.scriv/QuickLook/qlbg.jpg
+    New:        Documents/Tutorial.scriv/Settings/compile.plist
+    New:        Documents/Tutorial.scriv/Settings/ui.plist
+    New:        Documents/Tutorial.scriv/Snapshots/22.snapshots/2006-08-23-19-33-44+0100.rtf
+    New:        Documents/Tutorial.scriv/Snapshots/22.snapshots/index.xml
+    New:        Documents/Tutorial.scriv/Tutorial.scrivx
+    New:        Documents/Untitled 2.txt
+    New:        Documents/Untitled.scriv/Files/Docs/3.rtf
+    New:        Documents/Untitled.scriv/Files/Docs/8.rtf
+    New:        Documents/Untitled.scriv/Files/Docs/9.pdf
+    New:        Documents/Untitled.scriv/Files/Docs/docs.checksum
+    New:        Documents/Untitled.scriv/Files/ProjectNotes/index.xml
+    New:        Documents/Untitled.scriv/Files/binder.autosave
+    New:        Documents/Untitled.scriv/Files/binder.backup
+    New:        Documents/Untitled.scriv/Files/search.indexes
+    New:        Documents/Untitled.scriv/Files/version.txt
+    New:        Documents/Untitled.scriv/QuickLook/Preview.html
+    New:        Documents/Untitled.scriv/QuickLook/Thumbnail.jpg
+    New:        Documents/Untitled.scriv/QuickLook/qlbg.jpg
+    New:        Documents/Untitled.scriv/Settings/compile.plist
+    New:        Documents/Untitled.scriv/Settings/template_compile.plist
+    New:        Documents/Untitled.scriv/Settings/templateinfo.xml
+    New:        Documents/Untitled.scriv/Settings/ui.plist
+    New:        Documents/Untitled.scriv/Untitled.scrivx
+    New:        Documents/amtlib.framework/Resources
+    New:        Documents/amtlib.framework/Versions/A/CodeResources
+    New:        Documents/amtlib.framework/Versions/A/Resources/Info.plist
+    New:        Documents/amtlib.framework/Versions/A/_CodeSignature/CodeResources
+    New:        Documents/amtlib.framework/Versions/A/amtlib
+    New:        Documents/amtlib.framework/Versions/Current
+    New:        Documents/amtlib.framework/amtlib
+    New:        Documents/test.scriv/Files/Docs/10.rtf
+    New:        Documents/test.scriv/Files/Docs/11.rtf
+    New:        Documents/test.scriv/Files/Docs/12.rtf
+    New:        Documents/test.scriv/Files/Docs/13.rtf
+    New:        Documents/test.scriv/Files/Docs/19.rtf
+    New:        Documents/test.scriv/Files/Docs/20.rtf
+    New:        Documents/test.scriv/Files/Docs/27.rtf
+    New:        Documents/test.scriv/Files/Docs/28.rtf
+    New:        Documents/test.scriv/Files/Docs/28_notes.rtf
+    New:        Documents/test.scriv/Files/Docs/29.rtf
+    New:        Documents/test.scriv/Files/Docs/30.rtf
+    New:        Documents/test.scriv/Files/Docs/5.rtf
+    New:        Documents/test.scriv/Files/Docs/6.rtf
+    New:        Documents/test.scriv/Files/Docs/7.rtf
+    New:        Documents/test.scriv/Files/Docs/8.rtf
+    New:        Documents/test.scriv/Files/Docs/docs.checksum
+    New:        Documents/test.scriv/Files/ProjectNotes/index.xml
+    New:        Documents/test.scriv/Files/binder.backup
+    New:        Documents/test.scriv/Files/search.indexes
+    New:        Documents/test.scriv/Files/version.txt
+    New:        Documents/test.scriv/QuickLook/Preview.html
+    New:        Documents/test.scriv/QuickLook/Thumbnail.jpg
+    New:        Documents/test.scriv/QuickLook/qlbg.jpg
+    New:        Documents/test.scriv/Settings/compile.plist
+    New:        Documents/test.scriv/Settings/template_compile.plist
+    New:        Documents/test.scriv/Settings/templateinfo.xml
+    New:        Documents/test.scriv/Settings/ui.plist
+    New:        Documents/test.scriv/test.scrivx
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with <code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level2">
+<h2>0. Introduction</h2>
+<ul>
+<li><p>Please see <code>de-import-kallisto-data.Rmd</code> for details on the pre-processing of the <em>kallisto</em> data including summarisation to gene-level counts and filtering.</p></li>
+<li><p>In this analysis, we will perform differential gene expression analysis using <em>limma</em>.</p></li>
+</ul>
+</div>
+<div id="de-analysis" class="section level2">
+<h2>1. DE analysis</h2>
+<ul>
+<li><p>We will determine the DE genes and transcripts separately with <em>limma</em>.</p></li>
+<li><p>In both cases the model is based on a grouping variable <code>Group</code> which includes the <strong>Genotype</strong>, <strong>Age</strong>, and <strong>Hypoxia/Normoxia</strong> status.</p></li>
+<li><p>We also add the term in for <strong>Gender</strong> to account for any gender-specific effects on gene/transcript expression.</p></li>
+</ul>
+<div id="gene-level-analysis" class="section level3">
+<h3>1.1. Gene-level analysis</h3>
+<ul>
+<li>Import in the filtered DGEList object.</li>
+</ul>
+<pre class="r"><code>dge_g &lt;- readRDS(here(&quot;data&quot;, &quot;zebrafish&quot;, &quot;dge_g_filtered.rds&quot;))</code></pre>
+<ul>
+<li>Perform DE analysis using <em>limma</em>.</li>
+</ul>
+<pre class="r"><code>design_g &lt;- model.matrix(~0 + Group + Gender, data = dge_g$samples) %&gt;%
+  set_colnames(gsub(pattern = &quot;Group&quot;, replacement = &quot;&quot;, x = colnames(.)))
+
+voomData_g &lt;- voomWithQualityWeights(dge_g, design = design_g, plot = TRUE)</code></pre>
+<p><img src="figure/de-analysis.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>contrasts_g &lt;- makeContrasts(
+  levels = colnames(design_g), 
+  # Effect of the mutation when hypoxic stress condition and age are constant:
+  normoxia_6mth_mutant_vs_wt = q96_6_0-wt_6_0,
+  normoxia_24mth_mutant_vs_wt = q96_24_0-wt_24_0,
+  hypoxia_6mth_mutant_vs_wt = q96_6_1-wt_6_1,
+  hypoxia_24mth_mutant_vs_wt = q96_24_1-wt_24_1,
+  
+  # Effect of hypoxic stress condition when mutation and age are constant:
+  wt_6mth_hypoxia_vs_normoxia = wt_6_1-wt_6_0,
+  mutant_6mth_hypoxia_vs_normoxia = q96_6_1-q96_6_0,
+  wt_24mth_hypoxia_vs_normoxia = wt_24_1-wt_24_0,
+  mutant_24mth_hypoxia_vs_normoxia = q96_24_1-q96_24_0,
+  
+  # Effect of aging when mutation and hypoxic stress condition are constant:
+  normoxia_wtAging = wt_24_0-wt_6_0,
+  hypoxia_wtAging = wt_24_1-wt_6_1,
+  normoxia_mutantAging = q96_24_0-q96_6_0,
+  hypoxia_mutantAging = q96_24_1-q96_6_1
+)
+
+fit_g &lt;- lmFit(voomData_g, design_g) %&gt;%
+  contrasts.fit(contrasts_g) %&gt;%
+  eBayes(robust = TRUE)
+
+results_g &lt;- decideTests(fit_g, 
+                         p.value = 0.05, 
+                         adjust.method = &quot;fdr&quot;, 
+                         method = &quot;global&quot;) # Adjust pvalues across all contrasts
+
+# Number of DE genes in each comparison (contrast):
+summary(results_g)</code></pre>
+<pre><code>       normoxia_6mth_mutant_vs_wt normoxia_24mth_mutant_vs_wt
+Down                          143                         296
+NotSig                      19429                       19162
+Up                            135                         249
+       hypoxia_6mth_mutant_vs_wt hypoxia_24mth_mutant_vs_wt
+Down                         815                        396
+NotSig                     17910                      19058
+Up                           982                        253
+       wt_6mth_hypoxia_vs_normoxia mutant_6mth_hypoxia_vs_normoxia
+Down                           960                             468
+NotSig                       17789                           18506
+Up                             958                             733
+       wt_24mth_hypoxia_vs_normoxia mutant_24mth_hypoxia_vs_normoxia
+Down                            247                              130
+NotSig                        18949                            19306
+Up                              511                              271
+       normoxia_wtAging hypoxia_wtAging normoxia_mutantAging
+Down               1020            1362                 1303
+NotSig            17478           16959                17268
+Up                 1209            1386                 1136
+       hypoxia_mutantAging
+Down                  1156
+NotSig               17639
+Up                     912</code></pre>
+<pre class="r"><code>write_fit_g &lt;- write_fit(fit_g, 
+                         results_g, 
+                         method = &quot;global&quot;, 
+                         adjust = &quot;fdr&quot;)</code></pre>
+<div id="gender-specific-effects" class="section level4">
+<h4>1.1.1. Gender-specific effects</h4>
+<ul>
+<li><p>To see how much differential expression gender actually accounts for, we will perform a DE analysis between male and female samples that are the same age.</p></li>
+<li><p>Aside from setting new contrasts, the rest of the analysis is just copied from above.</p></li>
+</ul>
+<pre class="r"><code># Create a new grouping variable with gender and age. 
+dge_g$samples %&lt;&gt;% mutate(genderage = paste0(Gender, &quot;_&quot;,Age))
+
+design_g1 &lt;- model.matrix(~0 + genderage, data = dge_g$samples) %&gt;%
+  set_colnames(gsub(pattern = &quot;genderage&quot;, replacement = &quot;&quot;, x = colnames(.)))
+
+voomData_g1 &lt;- voomWithQualityWeights(dge_g, design = design_g1, plot = TRUE)</code></pre>
+<p><img src="figure/de-analysis.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>contrasts_g1 &lt;- makeContrasts(
+  levels = colnames(design_g1), 
+  genderEffects_24mths = female_24-male_24,
+  genderEffects_6mths = female_6-male_6
+)
+
+fit_g1 &lt;- lmFit(voomData_g1, design_g1) %&gt;%
+  contrasts.fit(contrasts_g1) %&gt;%
+  eBayes(robust = TRUE)
+
+results_g1 &lt;- decideTests(fit_g1, 
+                         p.value = 0.05, 
+                         adjust.method = &quot;fdr&quot;, 
+                         method = &quot;global&quot;)
+
+write_fit_g1 &lt;- write_fit(fit_g1, 
+                          results_g1, 
+                          method = &quot;global&quot;, 
+                          adjust = &quot;fdr&quot;) %&gt;% 
+  dplyr::filter(p.value.adj.genderEffects_24mths &lt; 0.05 |
+                  p.value.adj.genderEffects_6mths &lt; 0.05)</code></pre>
+<ul>
+<li>As the table below shows, there are some genes which appear DE as a result of gender. However, these should have been accounted for when we include <code>gender</code> as a covariate in the original model (none of these genes appear in the DE genes for mutant vs. wild type comparisons).</li>
+</ul>
+<pre class="r"><code>summary(results_g1)</code></pre>
+<pre><code>       genderEffects_24mths genderEffects_6mths
+Down                     35                  30
+NotSig                19648               19676
+Up                       24                   1</code></pre>
+</div>
+</div>
+<div id="transcript-level-analysis" class="section level3">
+<h3>1.2. Transcript-level analysis</h3>
+<ul>
+<li><p>Although transcript-level analysis is not really relevant to our question, we will do it anyway just to compare with the DE gene results.</p></li>
+<li><p>Read in the filtered transcript-level DGEList.</p></li>
+</ul>
+<pre class="r"><code>dge_t &lt;- readRDS(here(&quot;data&quot;, &quot;zebrafish&quot;, &quot;dge_t_filtered.rds&quot;))</code></pre>
+<ul>
+<li>Perform DE analysis using <em>limma</em>.</li>
+</ul>
+<pre class="r"><code>design_t &lt;- model.matrix(~0 + Group + Gender, data = dge_t$samples) %&gt;%
+  set_colnames(gsub(pattern = &quot;Group&quot;, replacement = &quot;&quot;, x = colnames(.)))
+
+voomData_t &lt;- voomWithQualityWeights(dge_t, design = design_t, plot = FALSE)
+
+contrasts_t &lt;- makeContrasts(
+  levels = colnames(design_t), 
+  
+  # Effect of the mutation when hypoxic stress condition and age are constant:
+  normoxia_6mth_mutant_vs_wt = q96_6_0-wt_6_0,
+  normoxia_24mth_mutant_vs_wt = q96_24_0-wt_24_0,
+  hypoxia_6mth_mutant_vs_wt = q96_6_1-wt_6_1,
+  hypoxia_24mth_mutant_vs_wt = q96_24_1-wt_24_1,
+  
+  # Effect of hypoxic stress condition when mutation and age are constant:
+  wt_6mth_hypoxia_vs_normoxia = wt_6_1-wt_6_0,
+  mutant_6mth_hypoxia_vs_normoxia = q96_6_1-q96_6_0,
+  wt_24mth_hypoxia_vs_normoxia = wt_24_1-wt_24_0,
+  mutant_24mth_hypoxia_vs_normoxia = q96_24_1-q96_24_0,
+  
+  # Effect of aging when mutation and hypoxic stress condition are constant:
+  normoxia_wtAging = wt_24_0-wt_6_0,
+  hypoxia_wtAging = wt_24_1-wt_6_1,
+  normoxia_mutantAging = q96_24_0-q96_6_0,
+  hypoxia_mutantAging = q96_24_1-q96_6_1
+)
+
+fit_t &lt;- lmFit(voomData_t, design_t) %&gt;%
+  contrasts.fit(contrasts_t) %&gt;%
+  eBayes(robust = TRUE)
+
+results_t &lt;- decideTests(fit_t,
+                         p.value = 0.05, 
+                         adjust.method = &quot;fdr&quot;,
+                         method = &quot;global&quot;)
+summary(results_t)</code></pre>
+<pre><code>       normoxia_6mth_mutant_vs_wt normoxia_24mth_mutant_vs_wt
+Down                           94                         223
+NotSig                      30953                       30779
+Up                            119                         164
+       hypoxia_6mth_mutant_vs_wt hypoxia_24mth_mutant_vs_wt
+Down                         465                        281
+NotSig                     30120                      30679
+Up                           581                        206
+       wt_6mth_hypoxia_vs_normoxia mutant_6mth_hypoxia_vs_normoxia
+Down                           549                             275
+NotSig                       30058                           30353
+Up                             559                             538
+       wt_24mth_hypoxia_vs_normoxia mutant_24mth_hypoxia_vs_normoxia
+Down                            164                               89
+NotSig                        30713                            30918
+Up                              289                              159
+       normoxia_wtAging hypoxia_wtAging normoxia_mutantAging
+Down                598             853                  869
+NotSig            29686           29435                29554
+Up                  882             878                  743
+       hypoxia_mutantAging
+Down                   809
+NotSig               29736
+Up                     621</code></pre>
+<pre class="r"><code>write_fit_t &lt;- write_fit(fit_t, results_t, method = &quot;global&quot;, adjust = &quot;fdr&quot;)</code></pre>
+</div>
+</div>
+<div id="plots" class="section level2">
+<h2>2. Plots</h2>
+<div id="t-statistic-pca" class="section level3">
+<h3>t-statistic PCA</h3>
+<ul>
+<li>Plotting a PCA of the t-statistics determined by <em>limma</em> can give us an idea into how similar the DE results are across different comparisons.</li>
+</ul>
+<pre class="r"><code>t_pca &lt;- write_fit_g %&gt;% dplyr::select(starts_with(&quot;t.&quot;)) %&gt;% 
+  as.matrix %&gt;% t %&gt;% prcomp
+
+summary(t_pca) # PC1: 34.6%, PC2: 28.7%</code></pre>
+<pre><code>Importance of components:
+                            PC1      PC2     PC3      PC4      PC5      PC6
+Standard deviation     137.8739 125.6024 85.9979 70.81654 65.64105 58.07536
+Proportion of Variance   0.3463   0.2874  0.1347  0.09136  0.07849  0.06144
+Cumulative Proportion    0.3463   0.6337  0.7684  0.85975  0.93825  0.99969
+                           PC7     PC8     PC9    PC10    PC11      PC12
+Standard deviation     2.90072 1.81459 1.72573 1.21094 1.03291 1.533e-13
+Proportion of Variance 0.00015 0.00006 0.00005 0.00003 0.00002 0.000e+00
+Cumulative Proportion  0.99984 0.99990 0.99995 0.99998 1.00000 1.000e+00</code></pre>
+<pre class="r"><code>t_pca_plot &lt;- t_pca$x[, c(&quot;PC1&quot;,&quot;PC2&quot;)] %&gt;%
+  as.data.frame %&gt;%
+  rownames_to_column(&quot;comparison&quot;) %&gt;%
+  mutate(comparison = gsub(x = comparison, pattern = &quot;^t.&quot;, replacement = &quot;&quot;)) %&gt;%
+  ggplot(aes(x = PC1, y = PC2, colour = comparison, label = comparison)) +
+  geom_point(alpha=0.7, size = 3)+
+  geom_text_repel(size=2) + 
+  theme(aspect.ratio = 1)+
+  scale_colour_manual(values = c(rep(&quot;red&quot;, 2), rep(&quot;blue&quot;, 2), rep(&quot;magenta&quot;,2), 
+                                 rep(&quot;red&quot;, 2), rep(&quot;blue&quot;, 2), rep(&quot;magenta&quot;,2))) +
+  labs(x = &quot;Principal Component 1 (34.6%)&quot;, 
+       y = &quot;Principal Component 2 (28.7%)&quot;, 
+       colour = &quot;t-statistics&quot;)
+
+t_pca_plot</code></pre>
+<p><img src="figure/de-analysis.Rmd/unnamed-chunk-7-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+</div>
+<div id="export-objects" class="section level2">
+<h2>Export Objects</h2>
+<ul>
+<li>Gene-level DE analysis objects</li>
+</ul>
+<pre class="r"><code>design_g %&gt;% saveRDS(here(&quot;data&quot;, &quot;zebrafish&quot;, &quot;design_g.rds&quot;))
+contrasts_g %&gt;% saveRDS(here(&quot;data&quot;, &quot;zebrafish&quot;, &quot;contrasts_g.rds&quot;))
+voomData_g %&gt;% saveRDS(here(&quot;data&quot;, &quot;zebrafish&quot;, &quot;voomData_g.rds&quot;))
+write_fit_g %&gt;% saveRDS(here(&quot;data&quot;, &quot;zebrafish&quot;, &quot;write_fit_g.rds&quot;))</code></pre>
+<ul>
+<li>Transcript-level DE analysis objects</li>
+</ul>
+<pre class="r"><code>design_t %&gt;% saveRDS(here(&quot;data&quot;, &quot;zebrafish&quot;, &quot;design_t.rds&quot;))
+contrasts_t %&gt;% saveRDS(here(&quot;data&quot;, &quot;zebrafish&quot;, &quot;contrasts_t.rds&quot;))
+voomData_t %&gt;% saveRDS(here(&quot;data&quot;, &quot;zebrafish&quot;, &quot;voomData_t.rds&quot;))
+write_fit_t %&gt;% saveRDS(here(&quot;data&quot;, &quot;zebrafish&quot;, &quot;write_fit_t.rds&quot;))</code></pre>
+<ul>
+<li>Gender-specific DE genes</li>
+</ul>
+<pre class="r"><code>write_fit_g1 %&gt;% write.csv(here(&quot;output&quot;,
+                                &quot;zebrafish&quot;, 
+                                &quot;genderSpecificGenes.csv&quot;))</code></pre>
+<ul>
+<li>t-statistic plot</li>
+</ul>
+<pre class="r"><code>t_pca_plot %&gt;% graph2pdf(here(&quot;output&quot;, &quot;zebrafish&quot;, &quot;tstatistic_pca&quot;))</code></pre>
+<pre><code>Exported graph as /Users/nhihin/Documents/GitHub/ire/output/zebrafish/tstatistic_pca.pdf</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.2 (2018-12-20)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Running under: macOS Mojave 10.14.6
+
+Matrix products: default
+BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_AU.UTF-8/en_AU.UTF-8/en_AU.UTF-8/C/en_AU.UTF-8/en_AU.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] ggrepel_0.8.1 export_0.2.2  ggplot2_3.2.1 tibble_2.1.3  dplyr_0.8.3  
+[6] magrittr_1.5  here_0.1      edgeR_3.24.3  limma_3.38.3 
+
+loaded via a namespace (and not attached):
+ [1] rgl_0.100.30            Rcpp_1.0.3              locfit_1.5-9.1         
+ [4] lattice_0.20-38         tidyr_1.0.0             assertthat_0.2.1       
+ [7] zeallot_0.1.0           rprojroot_1.3-2         digest_0.6.22          
+[10] mime_0.7                R6_2.4.1                backports_1.1.5        
+[13] evaluate_0.14           pillar_1.4.2            gdtools_0.2.1          
+[16] rlang_0.4.1             lazyeval_0.2.2          uuid_0.1-2             
+[19] miniUI_0.1.1.1          data.table_1.12.6       flextable_0.5.6        
+[22] rmarkdown_1.17          labeling_0.3            statmod_1.4.32         
+[25] webshot_0.5.1           stringr_1.4.0           htmlwidgets_1.5.1      
+[28] munsell_0.5.0           shiny_1.4.0             broom_0.5.2            
+[31] compiler_3.5.2          httpuv_1.5.2            xfun_0.11              
+[34] pkgconfig_2.0.3         systemfonts_0.1.1       base64enc_0.1-3        
+[37] rvg_0.2.2               htmltools_0.4.0         tidyselect_0.2.5       
+[40] workflowr_1.6.1         crayon_1.3.4            withr_2.1.2            
+[43] later_1.0.0             grid_3.5.2              nlme_3.1-142           
+[46] jsonlite_1.6            xtable_1.8-4            gtable_0.3.0           
+[49] lifecycle_0.1.0         git2r_0.26.1            scales_1.0.0           
+[52] zip_2.0.4               stringi_1.4.3           fs_1.3.1               
+[55] promises_1.1.0          xml2_1.2.2              generics_0.0.2         
+[58] vctrs_0.2.0             openxlsx_4.1.3          stargazer_5.2.2        
+[61] tools_3.5.2             manipulateWidget_0.10.0 glue_1.3.1             
+[64] officer_0.3.6           purrr_0.3.3             crosstalk_1.0.0        
+[67] fastmap_1.0.1           yaml_2.2.0              colorspace_1.4-1       
+[70] knitr_1.26             </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

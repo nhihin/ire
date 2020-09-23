@@ -1,0 +1,2746 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Steve Pederson, Nhi Hin" />
+
+<meta name="date" content="2020-04-20" />
+
+<title>Defining IRE Gene Sets - Mouse</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">ire</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Defining IRE Gene Sets - Mouse</h1>
+<h4 class="author">Steve Pederson, Nhi Hin</h4>
+<h4 class="date">2020-04-20</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-04-24
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>ire/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.1). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20200420code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20200420)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20200420code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20200420)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomnhihinforgetfulfishtree0f8be9f1c8498e071570455166f7f878f177484btargetblank0f8be9fa"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/nhihin/forgetfulfish/tree/0f8be9f1c8498e071570455166f7f878f177484b" target="_blank">0f8be9f</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomnhihinforgetfulfishtree0f8be9f1c8498e071570455166f7f878f177484btargetblank0f8be9fa" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/nhihin/forgetfulfish/tree/0f8be9f1c8498e071570455166f7f878f177484b" target="_blank">0f8be9f</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .DS_Store
+    Ignored:    .RData
+    Ignored:    .Rhistory
+    Ignored:    .Trash/
+    Ignored:    .continuum/
+    Ignored:    .gnupg_pre_2.1/
+    Ignored:    .matplotlib/
+    Ignored:    .t_coffee/
+    Ignored:    Documents/.DS_Store
+    Ignored:    Documents/GitHub/.DS_Store
+    Ignored:    Documents/GitHub/praiseme/praiseme/.Rhistory
+    Ignored:    Documents/GitHub/praiseme/praiseme/.Rproj.user/
+    Ignored:    Documents/NewNotes/notes/
+    Ignored:    Documents/Pictures/
+    Ignored:    Documents/Processing/.DS_Store
+    Ignored:    Documents/Processing/examples/
+    Ignored:    Documents/Processing/libraries/
+    Ignored:    Documents/Processing/spirograph/.DS_Store
+    Ignored:    Documents/Processing/templates/
+    Ignored:    Documents/Processing/tools/
+    Ignored:    Documents/R/
+    Ignored:    Documents/Review-Article.scriv/Settings/User/
+    Ignored:    Documents/ReviewArticlePlanning.scriv/Settings/User/
+    Ignored:    Documents/Tutorial.scriv/Settings/User/
+    Ignored:    Documents/Untitled.scriv/Settings/User/
+    Ignored:    Documents/test.scriv/Settings/User/
+    Ignored:    backup/
+    Ignored:    dircreate/
+
+Untracked files:
+    Untracked:  .AnnotationHub/
+    Untracked:  .CFUserTextEncoding
+    Untracked:  .CHRONOS/
+    Untracked:  .ENA.sh.swp
+    Untracked:  .MacOSX/
+    Untracked:  .RDataTmp
+    Untracked:  .Rapp.history
+    Untracked:  .Xauthority
+    Untracked:  .adobe/
+    Untracked:  .bash_history
+    Untracked:  .bash_profile
+    Untracked:  .bash_profile-anaconda.bak
+    Untracked:  .bash_profile-miniconda3.bak
+    Untracked:  .bash_sessions/
+    Untracked:  .bashrc
+    Untracked:  .bitmonero/
+    Untracked:  .cache/
+    Untracked:  .conda/
+    Untracked:  .condarc
+    Untracked:  .config/
+    Untracked:  .cpanm/
+    Untracked:  .cups/
+    Untracked:  .dlv/
+    Untracked:  .docker/
+    Untracked:  .electrum/
+    Untracked:  .gitconfig
+    Untracked:  .gitflow_export
+    Untracked:  .gitignore
+    Untracked:  .gitignore_global
+    Untracked:  .gnupg/
+    Untracked:  .hgignore_global
+    Untracked:  .keras/
+    Untracked:  .node-gyp/
+    Untracked:  .npm/
+    Untracked:  .nx/
+    Untracked:  .oh-my-zsh/
+    Untracked:  .oracle_jre_usage/
+    Untracked:  .qt/
+    Untracked:  .rnd
+    Untracked:  .rstudio-desktop/
+    Untracked:  .s1.sh
+    Untracked:  .savant/
+    Untracked:  .serverauth.1208
+    Untracked:  .serverauth.16273
+    Untracked:  .serverauth.1656
+    Untracked:  .serverauth.18995
+    Untracked:  .serverauth.20301
+    Untracked:  .serverauth.35255
+    Untracked:  .serverauth.38277
+    Untracked:  .serverauth.40350
+    Untracked:  .serverauth.4262
+    Untracked:  .serverauth.4315
+    Untracked:  .serverauth.4358
+    Untracked:  .serverauth.57832
+    Untracked:  .serverauth.63886
+    Untracked:  .serverauth.7330
+    Untracked:  .serverauth.79286
+    Untracked:  .serverauth.81376
+    Untracked:  .serverauth.920
+    Untracked:  .ssh/
+    Untracked:  .stCommitMsg
+    Untracked:  .subversion/
+    Untracked:  .sudo_as_admin_successful
+    Untracked:  .vim/
+    Untracked:  .viminfo
+    Untracked:  .vscode/
+    Untracked:  .yjp/
+    Untracked:  .zcompdump-ELIZA-5.2
+    Untracked:  .zcompdump-ELIZA-5.3
+    Untracked:  .zsh-update
+    Untracked:  .zsh_history
+    Untracked:  .zshrc
+    Untracked:  0.361366553072916.tmp
+    Untracked:  0.547629240007279.tmp
+    Untracked:  0.561695152931986.tmp
+    Untracked:  0.738235249024914.tmp
+    Untracked:  496128434
+    Untracked:  Applications/
+    Untracked:  BSgenome.Drerio.UCSC.danRer11/
+    Untracked:  Boostnote/
+    Untracked:  Box Sync/
+    Untracked:  Box/
+    Untracked:  CytoscapeConfiguration/
+    Untracked:  Desktop/
+    Untracked:  Documents/.localized
+    Untracked:  Documents/GitHub/ire/
+    Untracked:  Documents/GitHub/notes/
+    Untracked:  Documents/GitHub/praiseme/praiseme/R/praiseme.R
+    Untracked:  Documents/GitHub/praiseme/praiseme/man/praiseme.Rd
+    Untracked:  Downloads/
+    Untracked:  Drosophila_melanogaster.BDGP6.ncrna.fa
+    Untracked:  FKBP5-24mths.png
+    Untracked:  FKBP5-6mths.png
+    Untracked:  FKBP5-Oldfish-Mutants.png
+    Untracked:  FKBP5-Oldfish_Wt.png
+    Untracked:  Google Drive/
+    Untracked:  Library/
+    Untracked:  Monero/
+    Untracked:  Movies/
+    Untracked:  Music/
+    Untracked:  PSEN1-Oldfish-Mutants.png
+    Untracked:  PSEN1-Oldfish-Wt.png
+    Untracked:  Pictures/
+    Untracked:  Public/
+    Untracked:  R-3.4.1.pkg
+    Untracked:  Research/
+    Untracked:  RightFont/
+    Untracked:  Sashimi-24mth.png
+    Untracked:  Sashimi-6mth.png
+    Untracked:  Sashimi.png
+    Untracked:  Sashimi2.png
+    Untracked:  Sashimi3.png
+    Untracked:  TableS13-ZScores.xlsx
+    Untracked:  Untitled.csv
+    Untracked:  Untitled.pdf
+    Untracked:  Zebrafish_RNAseq_DE/
+    Untracked:  _book/
+    Untracked:  _bookdown.yml
+    Untracked:  _bookdown_files/
+    Untracked:  anaconda/
+    Untracked:  bib/
+    Untracked:  bin/
+    Untracked:  body.Rmd
+    Untracked:  bookdownplus.Rproj
+    Untracked:  cpp/
+    Untracked:  downloadUrl.gff
+    Untracked:  example/
+    Untracked:  gekko/
+    Untracked:  gitRepos/
+    Untracked:  go/
+    Untracked:  graph.pdf
+    Untracked:  gridsearch.zip
+    Untracked:  gridsearch/
+    Untracked:  homer/
+    Untracked:  hub
+    Untracked:  igv/
+    Untracked:  images/
+    Untracked:  index.Rmd
+    Untracked:  miniconda3/
+    Untracked:  ngsReports_Fastqc.html
+    Untracked:  nhi.dbj
+    Untracked:  nhi/
+    Untracked:  nhisci/
+    Untracked:  old_Box/
+    Untracked:  old_Box_2/
+    Untracked:  pathwayDGE.rds
+    Untracked:  permutedStats-actualModules.RData
+    Untracked:  pkg/
+    Untracked:  programs/
+    Untracked:  ran.csv
+    Untracked:  rmd/
+    Untracked:  runPipeline.sh
+    Untracked:  sav.R
+    Untracked:  script2.sh
+    Untracked:  settings.env
+    Untracked:  src/
+    Untracked:  steve.R
+    Untracked:  style/
+    Untracked:  testData/
+    Untracked:  tex/
+    Untracked:  untitled.R
+    Untracked:  zebrafish.png
+    Untracked:  zshrc
+
+Unstaged changes:
+    Modified:   Documents/GitHub/Zebrafish_RNAseq_DE
+    Modified:   Documents/GitHub/forgetfulfish
+    Modified:   Documents/GitHub/k97fsZebrafishAnalysis
+    Modified:   Documents/GitHub/praiseme/praiseme/DESCRIPTION
+    Modified:   Documents/GitHub/praiseme/praiseme/NAMESPACE
+    Deleted:    Documents/GitHub/praiseme/praiseme/R/hello.R
+    Deleted:    Documents/GitHub/praiseme/praiseme/man/hello.Rd
+    Modified:   Documents/GitHub/praiseme/praiseme/praiseme.Rproj
+    Modified:   Documents/GitHub/q96k97
+    Deleted:    README.md
+    Deleted:    transcriptQuantification.Rmd
+
+Staged changes:
+    New:        Documents/.NH-ConferencePoster.pdf.icloud
+    New:        Documents/2017-09-29.txt
+    New:        Documents/COMBINE_Poster.gif
+    New:        Documents/Discussion.md
+    New:        Documents/EndNote/Styles/Harvard_UofA__Style_Manual_Australia_6th_edn__Surname_only_Jan14 Copy Copy.ens
+    New:        Documents/GitHub/2019_Lardelli_AllWT_6month_RNASeq
+    New:        Documents/GitHub/Zebrafish_RNAseq_DE
+    New:        Documents/GitHub/forgetfulfish
+    New:        Documents/GitHub/futura/FuturaPTBold.otf
+    New:        Documents/GitHub/futura/FuturaPTBoldOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTBook.otf
+    New:        Documents/GitHub/futura/FuturaPTBookOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTCondBold.otf
+    New:        Documents/GitHub/futura/FuturaPTCondBoldOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTCondBook.otf
+    New:        Documents/GitHub/futura/FuturaPTCondBookOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTCondExtraBold.otf
+    New:        Documents/GitHub/futura/FuturaPTCondExtraBoldOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTCondMedium.otf
+    New:        Documents/GitHub/futura/FuturaPTCondMediumOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTDemi.otf
+    New:        Documents/GitHub/futura/FuturaPTDemiOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTExtraBold.otf
+    New:        Documents/GitHub/futura/FuturaPTExtraBoldOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTHeavy.otf
+    New:        Documents/GitHub/futura/FuturaPTHeavyOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTLight.otf
+    New:        Documents/GitHub/futura/FuturaPTLightOblique.otf
+    New:        Documents/GitHub/futura/FuturaPTMedium.otf
+    New:        Documents/GitHub/futura/FuturaPTMediumOblique.otf
+    New:        Documents/GitHub/k97fsZebrafishAnalysis
+    New:        Documents/GitHub/praiseme/praiseme/.Rbuildignore
+    New:        Documents/GitHub/praiseme/praiseme/DESCRIPTION
+    New:        Documents/GitHub/praiseme/praiseme/NAMESPACE
+    New:        Documents/GitHub/praiseme/praiseme/R/hello.R
+    New:        Documents/GitHub/praiseme/praiseme/man/hello.Rd
+    New:        Documents/GitHub/praiseme/praiseme/praiseme.Rproj
+    New:        Documents/GitHub/q96k97
+    New:        Documents/K97 L-plastin immuno figure V2/Slide1.tiff
+    New:        Documents/K97 L-plastin immuno figure V2/Slide2.tiff
+    New:        Documents/K97 L-plastin immuno figure V2/Slide3.tiff
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/09719fe9a8ba4760996aa02aeaeece8a.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/09719fe9a8ba4760996aa02aeaeece8a.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/8857a9885273430a8be471fb4a977c0f.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/8857a9885273430a8be471fb4a977c0f.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/Info.ulgroup
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/de8d51154b59494d8b0a4ab28abbac51.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/de8d51154b59494d8b0a4ab28abbac51.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/efa8615f86f64b8283492b269a4fc746.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/319a43e708bc40209eb9cd2be2db9d5a-ulgroup/efa8615f86f64b8283492b269a4fc746.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/5e09bb30aa7042449b630dae2faab727.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/5e09bb30aa7042449b630dae2faab727.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/6270e917773b4409b44ffc30a0c0d4f9.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/6270e917773b4409b44ffc30a0c0d4f9.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/Info.ulgroup
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/f05b99ea57a4428e855e008465057e3f.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/7e4edaf29ca04951ae21507848cca99a-ulgroup/f05b99ea57a4428e855e008465057e3f.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/Info.ulgroup
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/5c21d9eb2cd443c4a1aafabc325c13b5.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/5c21d9eb2cd443c4a1aafabc325c13b5.ulysses/Media/0.iCloud On My Mac.4fd7a37dc72544aa8ad6ad2579652a02.jpg
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/5c21d9eb2cd443c4a1aafabc325c13b5.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/5e53401c53af4596acb2e038c79e3eab.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/5e53401c53af4596acb2e038c79e3eab.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/Info.ulgroup
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/b292d4b17521411d9626b0cb1797fe85.ulysses/Content.xml
+    New:        Documents/Library/Groups-ulgroup/33c2cbaf58a24f08b01854f32bb164d2-ulgroup/fda38c03c74744e7b00f2237daaaf4a6-ulgroup/b292d4b17521411d9626b0cb1797fe85.ulysses/Text.txt
+    New:        Documents/Library/Groups-ulgroup/Info.ulgroup
+    New:        Documents/Library/Info.ulgroup
+    New:        Documents/Library/Root.plist
+    New:        Documents/Library/Trash-ultrash/Info.ultrash
+    New:        Documents/Library/Unfiled-ulgroup/532af22959ba4fc092f08ee0499b060a.ulysses/Content.xml
+    New:        Documents/Library/Unfiled-ulgroup/532af22959ba4fc092f08ee0499b060a.ulysses/Text.txt
+    New:        Documents/Library/Unfiled-ulgroup/Info.ulgroup
+    New:        Documents/Library/Unfiled-ulgroup/b2d4e1a5449e4aab8431ed1aaaf8e6e3.ulysses/Content.xml
+    New:        Documents/Library/Unfiled-ulgroup/b2d4e1a5449e4aab8431ed1aaaf8e6e3.ulysses/Text.txt
+    New:        Documents/Minimal Wardrobe.md
+    New:        Documents/My EndNote Library - NG.txt
+    New:        Documents/My EndNote Library 3.rtf
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/csort.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/csort.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/csort.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/db.opt
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/jterms.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/jterms.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/jterms.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/misc.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/misc.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/misc.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/pdf_index.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/pdf_index.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/pdf_index.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs_ext.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs_ext.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/refs_ext.frm
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/terms.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/terms.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/rdb/terms.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/csort.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/csort.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/csort.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/db.opt
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/jterms.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/jterms.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/jterms.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/misc.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/misc.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/misc.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/pdf_index.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/pdf_index.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/pdf_index.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs_ext.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs_ext.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/refs_ext.frm
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/terms.MYD
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/terms.MYI
+    New:        Documents/My EndNote Library-Dupl.Data/tdb/terms.frm
+    New:        Documents/My EndNote Library-Dupl.enl
+    New:        Documents/My EndNote Library-Dupl.txt
+    New:        Documents/My EndNote Library.Data/rdb/csort.MYD
+    New:        Documents/My EndNote Library.Data/rdb/csort.MYI
+    New:        Documents/My EndNote Library.Data/rdb/csort.frm
+    New:        Documents/My EndNote Library.Data/rdb/db.opt
+    New:        Documents/My EndNote Library.Data/rdb/jterms.MYD
+    New:        Documents/My EndNote Library.Data/rdb/jterms.MYI
+    New:        Documents/My EndNote Library.Data/rdb/jterms.frm
+    New:        Documents/My EndNote Library.Data/rdb/misc.MYD
+    New:        Documents/My EndNote Library.Data/rdb/misc.MYI
+    New:        Documents/My EndNote Library.Data/rdb/misc.frm
+    New:        Documents/My EndNote Library.Data/rdb/pdf_index.MYD
+    New:        Documents/My EndNote Library.Data/rdb/pdf_index.MYI
+    New:        Documents/My EndNote Library.Data/rdb/pdf_index.frm
+    New:        Documents/My EndNote Library.Data/rdb/refs.MYD
+    New:        Documents/My EndNote Library.Data/rdb/refs.MYI
+    New:        Documents/My EndNote Library.Data/rdb/refs.frm
+    New:        Documents/My EndNote Library.Data/rdb/refs_ext.MYD
+    New:        Documents/My EndNote Library.Data/rdb/refs_ext.MYI
+    New:        Documents/My EndNote Library.Data/rdb/refs_ext.frm
+    New:        Documents/My EndNote Library.Data/rdb/terms.MYD
+    New:        Documents/My EndNote Library.Data/rdb/terms.MYI
+    New:        Documents/My EndNote Library.Data/rdb/terms.frm
+    New:        Documents/My EndNote Library.Data/tdb/csort.MYD
+    New:        Documents/My EndNote Library.Data/tdb/csort.MYI
+    New:        Documents/My EndNote Library.Data/tdb/csort.frm
+    New:        Documents/My EndNote Library.Data/tdb/db.opt
+    New:        Documents/My EndNote Library.Data/tdb/jterms.MYD
+    New:        Documents/My EndNote Library.Data/tdb/jterms.MYI
+    New:        Documents/My EndNote Library.Data/tdb/jterms.frm
+    New:        Documents/My EndNote Library.Data/tdb/misc.MYD
+    New:        Documents/My EndNote Library.Data/tdb/misc.MYI
+    New:        Documents/My EndNote Library.Data/tdb/misc.frm
+    New:        Documents/My EndNote Library.Data/tdb/pdf_index.MYD
+    New:        Documents/My EndNote Library.Data/tdb/pdf_index.MYI
+    New:        Documents/My EndNote Library.Data/tdb/pdf_index.frm
+    New:        Documents/My EndNote Library.Data/tdb/refs.MYD
+    New:        Documents/My EndNote Library.Data/tdb/refs.MYI
+    New:        Documents/My EndNote Library.Data/tdb/refs.frm
+    New:        Documents/My EndNote Library.Data/tdb/refs_ext.MYD
+    New:        Documents/My EndNote Library.Data/tdb/refs_ext.MYI
+    New:        Documents/My EndNote Library.Data/tdb/refs_ext.frm
+    New:        Documents/My EndNote Library.Data/tdb/terms.MYD
+    New:        Documents/My EndNote Library.Data/tdb/terms.MYI
+    New:        Documents/My EndNote Library.Data/tdb/terms.frm
+    New:        Documents/My EndNote Library.enl
+    New:        Documents/My EndNote Library.htm
+    New:        Documents/NG.rtf
+    New:        Documents/NewNotes/boostnote.json
+    New:        Documents/Pages from sankeyDiagram.pdf
+    New:        Documents/Processing/books/books.pde
+    New:        Documents/Processing/books/hi.pde
+    New:        Documents/Processing/books2/books2.pde
+    New:        Documents/Processing/learning/learning.pde
+    New:        Documents/Processing/modes/PythonMode/LICENSE.txt
+    New:        Documents/Processing/modes/PythonMode/application/macosx/Info.plist.tmpl
+    New:        Documents/Processing/modes/PythonMode/application/macosx/dialogs.applescript
+    New:        Documents/Processing/modes/PythonMode/application/macosx/findjava
+    New:        Documents/Processing/modes/PythonMode/application/macosx/sketch.icns
+    New:        Documents/Processing/modes/PythonMode/application/windows/sketch.ico
+    New:        Documents/Processing/modes/PythonMode/examples/Advanced/KeyCodes/KeyCodes.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Advanced/KeyCodes/sketch.properties
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Camera/MoveEye/MoveEye.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Camera/Orthographic/Orthographic.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Camera/Perspective/Perspective.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/Brightness/Brightness.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/ColorVariables/ColorVariables.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/Hue/Hue.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/LinearGradient/LinearGradient.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/RadialGradient/RadialGradient.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/Relativity/Relativity.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/Saturation/Saturation.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Color/WaveGradient/WaveGradient.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Control/BooleanOperators/BooleanOperators.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Control/Conditionals1/Conditionals1.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Control/Conditionals2/Conditionals2.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Control/EmbeddedIteration/EmbeddedIteration.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Control/Iteration/Iteration.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/DatatypeConversion/DatatypeConversion.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/DatatypeConversion/data/Georgia.ttf
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/IntegersFloats/IntegersFloats.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/Strings/Strings.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/Strings/data/Georgia.ttf
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/TrueFalse/TrueFalse.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/VariableScope/VariableScope.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Data/Variables/Variables.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/Bezier/Bezier.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/PieChart/PieChart.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/PointsLines/PointsLines.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/Primitives3D/Primitives3D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/RegularPolygon/RegularPolygon.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/ShapePrimitives/ShapePrimitives.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/Star/Star.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Form/TriangleStrip/TriangleStrip.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Alphamask/Alphamask.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Alphamask/data/mask.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Alphamask/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/BackgroundImage/BackgroundImage.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/BackgroundImage/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/CreateImage/CreateImage.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/LoadDisplayImage/LoadDisplayImage.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/LoadDisplayImage/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Pointillism/Pointillism.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Pointillism/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/RequestImage.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0000.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0001.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0002.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0003.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0004.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0005.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0006.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0007.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0008.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0009.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0010.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/RequestImage/data/PT_anim0011.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Transparency/Transparency.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Image/Transparency/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Clock/Clock.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Constrain/Constrain.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Easing/Easing.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Keyboard/Keyboard.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/KeyboardFunctions/KeyboardFunctions.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Milliseconds/Milliseconds.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Mouse1D/Mouse1D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/Mouse2D/Mouse2D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/MouseFunctions/MouseFunctions.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/MousePress/MousePress.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/MouseSignals/MouseSignals.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Input/StoringInput/StoringInput.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/Directional/Directional.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/Mixture/Mixture.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/MixtureGrid/MixtureGrid.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/OnOff/OnOff.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/Reflection/Reflection.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lights/Spot/Spot.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lists/List/List.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lists/List2D/List2D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lists/ListObjects/ListObjects.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Lists/ListObjects/module.py
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/AdditiveWave/AdditiveWave.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Arctangent/Arctangent.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Arctangent/eye.py
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Distance1D/Distance1D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Distance2D/Distance2D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/DoubleRandom/DoubleRandom.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Graphing2DEquation/Graphing2DEquation.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/IncrementDecrement/IncrementDecrement.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Interpolate/Interpolate.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Map/Map.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Noise1D/Noise1D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Noise2D/Noise2D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Noise3D/Noise3D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/NoiseWave/NoiseWave.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/OperatorPrecedence/OperatorPrecedence.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/PolarToCartesian/PolarToCartesian.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Random/Random.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/RandomGaussian/RandomGaussian.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/Sine/Sine.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/SineCosine/SineCosine.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Math/SineWave/SineWave.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/CompositeObjects/CompositeObjects.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/CompositeObjects/egg.py
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/CompositeObjects/egg_ring.py
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/CompositeObjects/ring.py
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/Inheritance/Inheritance.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/MultipleConstructors/MultipleConstructors.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Objects/Objects/Objects.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/DisableStyle/DisableStyle.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/DisableStyle/data/bot1.svg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/GetChild/GetChild.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/GetChild/data/usa-wikipedia.svg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplayOBJ/LoadDisplayOBJ.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplayOBJ/data/rocket.mtl
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplayOBJ/data/rocket.obj
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplayOBJ/data/rocket.png
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplaySVG/LoadDisplaySVG.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/LoadDisplaySVG/data/bot1.svg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/ScaleShape/ScaleShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Shape/ScaleShape/data/bot1.svg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/Coordinates/Coordinates.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/CreateGraphics/CreateGraphics.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/CreateGraphics/data/mask.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/CreateGraphics/data/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/Functions/Functions.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/Loop/Loop.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/NoLoop/NoLoop.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/Recursion/Recursion.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/Redraw/Redraw.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/SetupDraw/SetupDraw.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/StatementsComments/StatementsComments.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Structure/WidthHeight/WidthHeight.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/Arm/Arm.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/Rotate/Rotate.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/RotatePushPop/RotatePushPop.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/RotateXY/RotateXY.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/Scale/Scale.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Transform/Translate/Translate.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/FiveWaysOfWritingText/FiveWaysOfWritingText.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/FiveWaysOfWritingText/sketch.properties
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/Letters/Letters.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/Letters/data/Georgia.ttf
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/Words/Words.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Typography/Words/data/Georgia.ttf
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Web/EmbeddedLinks/EmbeddedLinks.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Basics/Web/LoadingImages/LoadingImages.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/ControlP5/Textfield/Textfield.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/Fisica/ContactListener/ContactListener.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/MSAFluid/MSAFluid.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/MSAFluid/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/MSAFluid/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BackgroundSubtraction/BackgroundSubtraction.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BackgroundSubtraction/data/.street.mov.icloud
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BrightestPoint/BrightestPoint.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BrightestPoint/robot_light.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BrightnessContrast/BrightnessContrast.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/BrightnessContrast/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/CalibrationDemo/CalibrationDemo.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/CalibrationDemo/data/checkerboard.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/ColorChannels/.green_object.png.icloud
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/ColorChannels/ColorChannels.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DepthFromStereo/DepthFromStereo.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DepthFromStereo/scene_l.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DepthFromStereo/scene_r.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DilationAndErosion/DilationAndErosion.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DilationAndErosion/line_drawing.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/DilationAndErosion/pen_sketch.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FaceDetection/FaceDetection.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FaceDetection/data/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FaceDetection/data/test.png
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FaceDetection/data/testImage.png
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FaceDetection/data/transparent_test.png
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FilterImages/FilterImages.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FilterImages/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindContours/FindContours.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindContours/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindEdges/FindEdges.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindEdges/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindHistogram/FindHistogram.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/FindHistogram/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/HistogramSkinDetection/HistogramSkinDetection.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/HistogramSkinDetection/data/cb-cr.png
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/HistogramSkinDetection/data/test.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/LiveCamTest/LiveCamTest.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/OpenCV/LiveCamTest/data/haarcascade_frontalface_alt.xml
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/beads/Lesson01_AudioContext/Lesson01_AudioContext.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/beads/Lesson04_SamplePlayer/Lesson04_SamplePlayer.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Contributed Libraries in Python/ttslib/ttstest/ttstest.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/BoxClock/BoxClock.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/LowLevelGL/LowLevelGL.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/LowLevelGL/data/frag.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/LowLevelGL/data/vert.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Particles/Particles.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Particles/data/sprite.png
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Particles/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Particles/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Tentacles/Tentacles.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Tentacles/segment.py
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Tentacles/tentacle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Yellowtail/Yellowtail.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Yellowtail/gesture.py
+    New:        Documents/Processing/modes/PythonMode/examples/Demos/Graphics/Yellowtail/vec3f.py
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/IntAndFloat/IntAndFloat.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/IntAndFloat/sketch.properties
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/LiteralColors/LiteralColors.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/LiteralColors/sketch.properties
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/WithStatements/WithStatements.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Python Mode Differences/WithStatements/sketch.properties
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/AnimatedSprite.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/animation.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0000.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0001.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0002.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0003.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0004.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0005.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0006.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0007.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0008.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0009.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0010.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0011.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0012.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0013.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0014.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0015.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0016.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0017.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0018.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0019.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0020.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0021.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0022.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0023.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0024.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0025.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0026.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0027.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0028.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0029.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0030.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0031.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0032.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0033.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0034.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0035.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0036.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Shifty_0037.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0000.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0001.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0002.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0003.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0004.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0005.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0006.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0007.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0008.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0009.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0010.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0011.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0012.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0013.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0014.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0015.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0016.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0017.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0018.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0019.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0020.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0021.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0022.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0023.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0024.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0025.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0026.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0027.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0028.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0029.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0030.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0031.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0032.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0033.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0034.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0035.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0036.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0037.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0038.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0039.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0040.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0041.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0042.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0043.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0044.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0045.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0046.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0047.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0048.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0049.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0050.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0051.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0052.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0053.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0054.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0055.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0056.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0057.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0058.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/AnimatedSprite/data/PT_Teddy_0059.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/Sequential.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0000.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0001.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0002.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0003.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0004.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0005.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0006.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0007.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0008.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0009.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0010.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Animation/Sequential/data/PT_anim0011.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/ContinuousLines/ContinuousLines.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/BeginEndContour/BeginEndContour.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/GroupPShape/GroupPShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/ParticleSystemPShape/ParticleSystemPShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/ParticleSystemPShape/data/sprite.png
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/ParticleSystemPShape/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/ParticleSystemPShape/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PathPShape/PathPShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShape/PolygonPShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP/PolygonPShapeOOP.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP/star.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP2/PolygonPShapeOOP2.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP2/polygon.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP3/PolygonPShapeOOP3.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PolygonPShapeOOP3/polygon.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/PrimitivePShape/PrimitivePShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/WigglePShape/WigglePShape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Create Shapes/WigglePShape/wiggler.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Koch/Koch.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Koch/koch_fractal.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Koch/koch_line.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Mandelbrot/Mandelbrot.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseSnowflake/PenroseSnowflake.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseSnowflake/l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseSnowflake/penrose_snowflake_l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseTile/PenroseTile.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseTile/l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/PenroseTile/penrose_l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Pentigree/Pentigree.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Pentigree/l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Pentigree/pentigree_l_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Fractals and L-Systems/Tree/Tree.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Button/Button.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Handles/Handles.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Handles/handle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Rollover/Rollover.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Scrollbar/Scrollbar.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Scrollbar/data/seedBottom.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Scrollbar/data/seedTop.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/GUI/Scrollbar/hscrollbar.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/Icosahedra/Icosahedra.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/Icosahedra/icosahedron.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/Icosahedra/shape3d.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/NoiseSphere/NoiseSphere.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/NoiseSphere/hair.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/RGBCube/RGBCube.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/ShapeTransform/ShapeTransform.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/SpaceJunk/SpaceJunk.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/SpaceJunk/cube.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/Toroid/Toroid.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Geometry/Vertices/Vertices.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Blending/Blending.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Blending/data/layer1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Blending/data/layer2.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Blur/Blur.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Blur/data/moon.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Brightness/Brightness.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Brightness/data/moon-wide.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Convolution/Convolution.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Convolution/data/moon-wide.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/EdgeDetection/EdgeDetection.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/EdgeDetection/data/moon.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Explode/Explode.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Explode/data/eames.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Extrusion/Extrusion.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Extrusion/data/ystone08.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Histogram/Histogram.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Histogram/data/frontier.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/LinearImage/LinearImage.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/LinearImage/data/sea.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/PixelArray/PixelArray.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/PixelArray/data/sea.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Zoom/Zoom.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Image Processing/Zoom/data/ystone08.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Follow1/Follow1.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Follow2/Follow2.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Follow3/Follow3.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Reach1/Reach1.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Reach2/Reach2.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Reach3/Reach3.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Tickle/Tickle.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Interaction/Tickle/data/Georgia.ttf
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Bounce/Bounce.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/BouncyBubbles/BouncyBubbles.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/BouncyBubbles/ball.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Brownian/Brownian.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/CircleCollision/CircleCollision.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/CircleCollision/ball.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/CubesWithinCube/CubesWithinCube.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/CubesWithinCube/cube.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Linear/Linear.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Morph/Morph.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/MovingOnCurves/MovingOnCurves.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Reflection1/Reflection1.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Reflection2/Reflection2.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Reflection2/ground.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Motion/Reflection2/orb.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Pattern/Pattern.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Pulses/Pulses.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/BlurFilter/BlurFilter.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/BlurFilter/data/blur.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Conway/Conway.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Conway/data/conway.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/CustomBlend.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/burn.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/difference.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/dodge.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/leaves.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/moonwalk.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/CustomBlend/data/overlay.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Deform/Deform.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Deform/data/deform.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Deform/data/tex1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/DomeProjection/DomeProjection.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/DomeProjection/data/cubemapfrag.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/DomeProjection/data/cubemapvert.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/EdgeDetect/EdgeDetect.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/EdgeDetect/data/edges.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/EdgeDetect/data/leaves.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/EdgeFilter/EdgeFilter.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/EdgeFilter/data/edges.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/GlossyFishEye/GlossyFishEye.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/GlossyFishEye/data/FishEye.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/GlossyFishEye/data/GlossyFrag.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/GlossyFishEye/data/GlossyVert.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ImageMask/ImageMask.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ImageMask/data/leaves.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ImageMask/data/mask.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Landscape/Landscape.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Landscape/data/landscape.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Monjori/Monjori.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Monjori/data/monjori.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Nebula/Nebula.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/Nebula/data/nebula.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/SepBlur/SepBlur.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/SepBlur/data/blur.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ToonShading/ToonShading.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ToonShading/data/ToonFrag.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Shaders/ToonShading/data/ToonVert.glsl
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Chain/Chain.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Flocking/Flocking.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Flocking/boid.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Flocking/flock.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/ForcesWithVectors/ForcesWithVectors.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/ForcesWithVectors/liquid.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/ForcesWithVectors/mover.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/GravitationalAttraction3D/GravitationalAttraction3D.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/GravitationalAttraction3D/planet.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/GravitationalAttraction3D/sun.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/MultipleParticleSystems/MultipleParticleSystems.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/MultipleParticleSystems/crazy_particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/MultipleParticleSystems/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/MultipleParticleSystems/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SimpleParticleSystem/SimpleParticleSystem.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SimpleParticleSystem/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SimpleParticleSystem/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SmokeParticleSystem/SmokeParticleSystem.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SmokeParticleSystem/data/texture.gif
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SmokeParticleSystem/data/texture.png
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SmokeParticleSystem/particle.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SmokeParticleSystem/particle_system.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/SoftBody/SoftBody.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Spring/Spring.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Simulate/Springs/Springs.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureCube/TextureCube.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureCube/data/berlin-1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureCylinder/TextureCylinder.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureCylinder/data/berlin-1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureQuad/TextureQuad.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureQuad/data/berlin-1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureSphere/TextureSphere.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureSphere/data/world32k.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureTriangle/TextureTriangle.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Textures/TextureTriangle/data/berlin-1.jpg
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Vectors/AccelerationWithVectors/AccelerationWithVectors.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Vectors/AccelerationWithVectors/mover.py
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Vectors/BouncingBall/BouncingBall.pyde
+    New:        Documents/Processing/modes/PythonMode/examples/Topics/Vectors/VectorMath/VectorMath.pyde
+    New:        Documents/Processing/modes/PythonMode/formatter/LICENSE.autopep8
+    New:        Documents/Processing/modes/PythonMode/formatter/LICENSE.pep8
+    New:        Documents/Processing/modes/PythonMode/formatter/autopep8.py
+    New:        Documents/Processing/modes/PythonMode/formatter/format_server.py
+    New:        Documents/Processing/modes/PythonMode/formatter/pep8.py
+    New:        Documents/Processing/modes/PythonMode/keywords.txt
+    New:        Documents/Processing/modes/PythonMode/mode.properties
+    New:        Documents/Processing/modes/PythonMode/mode/LICENSE.jython
+    New:        Documents/Processing/modes/PythonMode/mode/PythonMode.jar
+    New:        Documents/Processing/modes/PythonMode/mode/guava-17.0.jar
+    New:        Documents/Processing/modes/PythonMode/mode/jython.jar
+    New:        Documents/Processing/modes/PythonMode/src.zip
+    New:        Documents/Processing/modes/PythonMode/theme/buttons-2x.png
+    New:        Documents/Processing/modes/PythonMode/theme/buttons.png
+    New:        Documents/Processing/modes/PythonMode/theme/mode-2x.png
+    New:        Documents/Processing/modes/PythonMode/theme/mode.png
+    New:        Documents/Processing/modes/PythonMode/theme/splash.png
+    New:        Documents/Processing/pulsar/pulsar.pde
+    New:        Documents/Processing/rotating_circles/rotating_circles.pde
+    New:        Documents/Processing/satellite/satellite.pde
+    New:        Documents/Processing/satellites/satellites.pde
+    New:        Documents/Processing/sketch_170417b/sketch_170417b.pde
+    New:        Documents/Processing/sketch_170417c/sketch_170417c.pde
+    New:        Documents/Processing/sketch_170506a/sketch_170506a.pde
+    New:        Documents/Processing/spirograph/spirograph.pde
+    New:        Documents/ProposalBib.rtf
+    New:        Documents/Results2.html
+    New:        Documents/Review-Article.scriv/Files/Docs/4.pdf
+    New:        Documents/Review-Article.scriv/Files/Docs/4_synopsis.txt
+    New:        Documents/Review-Article.scriv/Files/Docs/docs.checksum
+    New:        Documents/Review-Article.scriv/Files/ProjectNotes/index.xml
+    New:        Documents/Review-Article.scriv/Files/binder.autosave
+    New:        Documents/Review-Article.scriv/Files/binder.backup
+    New:        Documents/Review-Article.scriv/Files/search.indexes
+    New:        Documents/Review-Article.scriv/Files/version.txt
+    New:        Documents/Review-Article.scriv/QuickLook/Preview.html
+    New:        Documents/Review-Article.scriv/QuickLook/Thumbnail.jpg
+    New:        Documents/Review-Article.scriv/Review-Article.scrivx
+    New:        Documents/Review-Article.scriv/Settings/ui.plist
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/11.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/11_notes.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/11_synopsis.txt
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/12.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/29.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/34.pdf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/6.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/6_notes.rtf
+    New:        Documents/ReviewArticlePlanning.scriv/Files/Docs/docs.checksum
+    New:        Documents/ReviewArticlePlanning.scriv/Files/ProjectNotes/index.xml
+    New:        Documents/ReviewArticlePlanning.scriv/Files/binder.autosave
+    New:        Documents/ReviewArticlePlanning.scriv/Files/binder.backup
+    New:        Documents/ReviewArticlePlanning.scriv/Files/search.indexes
+    New:        Documents/ReviewArticlePlanning.scriv/Files/version.txt
+    New:        Documents/ReviewArticlePlanning.scriv/QuickLook/Preview.html
+    New:        Documents/ReviewArticlePlanning.scriv/QuickLook/Thumbnail.jpg
+    New:        Documents/ReviewArticlePlanning.scriv/QuickLook/qlbg.jpg
+    New:        Documents/ReviewArticlePlanning.scriv/ReviewArticlePlanning.scrivx
+    New:        Documents/ReviewArticlePlanning.scriv/Settings/compile.plist
+    New:        Documents/ReviewArticlePlanning.scriv/Settings/template_compile.plist
+    New:        Documents/ReviewArticlePlanning.scriv/Settings/templateinfo.xml
+    New:        Documents/ReviewArticlePlanning.scriv/Settings/ui.plist
+    New:        Documents/September Update 2018.md
+    New:        Documents/The following Research objectives outlined in the Research Proposal have been achieved.rtf
+    New:        Documents/The following Research objectives outlined in the Research Proposal have been achieved/Backup of The following Research objectives outlined in the Research Proposal have been achieved.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/10_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/11.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/11_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/13.links
+    New:        Documents/Tutorial.scriv/Files/Docs/13.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/13_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/14.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/17.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/17_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/18_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/19.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/20.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/21.links
+    New:        Documents/Tutorial.scriv/Files/Docs/21.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/22.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/24.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/24_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/26.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/26_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/27.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/28.wav
+    New:        Documents/Tutorial.scriv/Files/Docs/29_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/30.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/31.links
+    New:        Documents/Tutorial.scriv/Files/Docs/31.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/32.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/36.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/37.pdf
+    New:        Documents/Tutorial.scriv/Files/Docs/37_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/4.links
+    New:        Documents/Tutorial.scriv/Files/Docs/4.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/41.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/42.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/42_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/44.jpg
+    New:        Documents/Tutorial.scriv/Files/Docs/47.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/47_notes.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/48_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/4_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/5.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/50.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/51.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/52.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/52_notes.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/53.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/54.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/56.links
+    New:        Documents/Tutorial.scriv/Files/Docs/56.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/57.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/57_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/59.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/6.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/60.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/60_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/62.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/65.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/66.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/67.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/6_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/7.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/7_synopsis.txt
+    New:        Documents/Tutorial.scriv/Files/Docs/8.rtf
+    New:        Documents/Tutorial.scriv/Files/Docs/docs.checksum
+    New:        Documents/Tutorial.scriv/Files/ProjectNotes/index.xml
+    New:        Documents/Tutorial.scriv/Files/binder.autosave
+    New:        Documents/Tutorial.scriv/Files/binder.backup
+    New:        Documents/Tutorial.scriv/Files/search.indexes
+    New:        Documents/Tutorial.scriv/Files/version.txt
+    New:        Documents/Tutorial.scriv/QuickLook/Preview.html
+    New:        Documents/Tutorial.scriv/QuickLook/Thumbnail.jpg
+    New:        Documents/Tutorial.scriv/QuickLook/qlbg.jpg
+    New:        Documents/Tutorial.scriv/Settings/compile.plist
+    New:        Documents/Tutorial.scriv/Settings/ui.plist
+    New:        Documents/Tutorial.scriv/Snapshots/22.snapshots/2006-08-23-19-33-44+0100.rtf
+    New:        Documents/Tutorial.scriv/Snapshots/22.snapshots/index.xml
+    New:        Documents/Tutorial.scriv/Tutorial.scrivx
+    New:        Documents/Untitled 2.txt
+    New:        Documents/Untitled.scriv/Files/Docs/3.rtf
+    New:        Documents/Untitled.scriv/Files/Docs/8.rtf
+    New:        Documents/Untitled.scriv/Files/Docs/9.pdf
+    New:        Documents/Untitled.scriv/Files/Docs/docs.checksum
+    New:        Documents/Untitled.scriv/Files/ProjectNotes/index.xml
+    New:        Documents/Untitled.scriv/Files/binder.autosave
+    New:        Documents/Untitled.scriv/Files/binder.backup
+    New:        Documents/Untitled.scriv/Files/search.indexes
+    New:        Documents/Untitled.scriv/Files/version.txt
+    New:        Documents/Untitled.scriv/QuickLook/Preview.html
+    New:        Documents/Untitled.scriv/QuickLook/Thumbnail.jpg
+    New:        Documents/Untitled.scriv/QuickLook/qlbg.jpg
+    New:        Documents/Untitled.scriv/Settings/compile.plist
+    New:        Documents/Untitled.scriv/Settings/template_compile.plist
+    New:        Documents/Untitled.scriv/Settings/templateinfo.xml
+    New:        Documents/Untitled.scriv/Settings/ui.plist
+    New:        Documents/Untitled.scriv/Untitled.scrivx
+    New:        Documents/amtlib.framework/Resources
+    New:        Documents/amtlib.framework/Versions/A/CodeResources
+    New:        Documents/amtlib.framework/Versions/A/Resources/Info.plist
+    New:        Documents/amtlib.framework/Versions/A/_CodeSignature/CodeResources
+    New:        Documents/amtlib.framework/Versions/A/amtlib
+    New:        Documents/amtlib.framework/Versions/Current
+    New:        Documents/amtlib.framework/amtlib
+    New:        Documents/test.scriv/Files/Docs/10.rtf
+    New:        Documents/test.scriv/Files/Docs/11.rtf
+    New:        Documents/test.scriv/Files/Docs/12.rtf
+    New:        Documents/test.scriv/Files/Docs/13.rtf
+    New:        Documents/test.scriv/Files/Docs/19.rtf
+    New:        Documents/test.scriv/Files/Docs/20.rtf
+    New:        Documents/test.scriv/Files/Docs/27.rtf
+    New:        Documents/test.scriv/Files/Docs/28.rtf
+    New:        Documents/test.scriv/Files/Docs/28_notes.rtf
+    New:        Documents/test.scriv/Files/Docs/29.rtf
+    New:        Documents/test.scriv/Files/Docs/30.rtf
+    New:        Documents/test.scriv/Files/Docs/5.rtf
+    New:        Documents/test.scriv/Files/Docs/6.rtf
+    New:        Documents/test.scriv/Files/Docs/7.rtf
+    New:        Documents/test.scriv/Files/Docs/8.rtf
+    New:        Documents/test.scriv/Files/Docs/docs.checksum
+    New:        Documents/test.scriv/Files/ProjectNotes/index.xml
+    New:        Documents/test.scriv/Files/binder.backup
+    New:        Documents/test.scriv/Files/search.indexes
+    New:        Documents/test.scriv/Files/version.txt
+    New:        Documents/test.scriv/QuickLook/Preview.html
+    New:        Documents/test.scriv/QuickLook/Thumbnail.jpg
+    New:        Documents/test.scriv/QuickLook/qlbg.jpg
+    New:        Documents/test.scriv/Settings/compile.plist
+    New:        Documents/test.scriv/Settings/template_compile.plist
+    New:        Documents/test.scriv/Settings/templateinfo.xml
+    New:        Documents/test.scriv/Settings/ui.plist
+    New:        Documents/test.scriv/test.scrivx
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with <code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<div id="introduction" class="section level2">
+<h2>0. Introduction</h2>
+<ul>
+<li>Define IRE gene sets for mouse</li>
+</ul>
+</div>
+<div id="convert-ensembl-to-ucsc" class="section level2">
+<h2>1. Convert Ensembl to UCSC</h2>
+<ul>
+<li>In this analysis, the genome used was custom built as BSgenome object using the function <code>BSgenome::forgeBSgenomeDataPkg()</code>, using the 2bit file provided as <code>AH64629</code> in the package <code>AnnotationHub()</code>.</li>
+</ul>
+<pre class="r"><code>hg38 &lt;- BSgenome.Hsapiens.UCSC.hg38
+ah &lt;- AnnotationHub() %&gt;% subset(species == &quot;Homo sapiens&quot;)</code></pre>
+<pre><code>snapshotDate(): 2018-10-24</code></pre>
+<pre class="r"><code>gr &lt;- ah[[&quot;AH64629&quot;]]</code></pre>
+<pre><code>downloading 0 resources</code></pre>
+<pre><code>loading from cache 
+    &#39;/Users/nhihin//.AnnotationHub/71375&#39;</code></pre>
+<pre><code>Importing File into R ..</code></pre>
+<ul>
+<li><p>The GRanges object containing all annotations for known features was then loaded. However, the compatibility of the underlying <code>seqinfo</code> objects needs to be addressed.</p></li>
+<li><p>The seqinfo object of the main genome contains more features, and as such will be used as the foundation for the <code>GRanges</code> object.</p></li>
+<li><p>Whilst the GRanges object is based on Ensembl annotations and chromosome identifiers, the genome sequences are based on UCSC chromosome identifiers.</p></li>
+</ul>
+<pre class="r"><code>ucscLevels &lt;- seqlevels(hg38)</code></pre>
+<ul>
+<li>Scaffolds will need to have:
+<ul>
+<li>the <code>v</code> converted to a ‘.’</li>
+<li><code>chr**_</code> will need to removed from the prefix</li>
+<li><code>_alt</code> will need to be removed form the suffix</li>
+</ul></li>
+</ul>
+<pre class="r"><code>ensLevels &lt;- ucscLevels %&gt;%
+    str_remove_all(&quot;^chr&quot;) %&gt;%
+    str_remove_all(&quot;^[0-9Un]+_&quot;) %&gt;%
+    str_remove_all(&quot;_alt&quot;) %&gt;%
+    str_replace_all(&quot;v&quot;, &quot;.&quot;) %&gt;%
+    str_replace_all(&quot;^M$&quot;, &quot;MT&quot;)</code></pre>
+<pre class="r"><code>ens2Ucsc &lt;- structure(ucscLevels, names = ensLevels)
+seqlevels(gr) &lt;- ens2Ucsc[seqlevels(gr)]
+seqinfo(gr, new2old = match(seqlevels(hg38), seqlevels(gr))) &lt;- seqinfo(hg38)</code></pre>
+</div>
+<div id="extract-utr-sequences" class="section level2">
+<h2>2. Extract UTR sequences</h2>
+<div id="utr" class="section level3">
+<h3>2.1. 3’ UTR</h3>
+<pre class="r"><code>utr3 &lt;- subset(gr, type == &quot;three_prime_utr&quot;)</code></pre>
+<pre class="r"><code>utr3Seq &lt;- Views(hg38, utr3) %&gt;% DNAStringSet() 
+names(utr3Seq) &lt;- paste(utr3$transcript_id, utr3$gene_name, granges(utr3), 
+                        sep = &quot;_&quot;)
+writeXStringSet(utr3Seq, here(&quot;data&quot;,&quot;ire&quot;,
+                              &quot;human&quot;,&quot;utr3.fa.gz&quot;), compress = TRUE)</code></pre>
+<ul>
+<li>A total of 148,456 sequences were exported</li>
+</ul>
+</div>
+<div id="utr-1" class="section level3">
+<h3>2.2. 5’ UTR</h3>
+<pre class="r"><code>utr5 &lt;- subset(gr, type == &quot;five_prime_utr&quot;)</code></pre>
+<pre class="r"><code>utr5Seq &lt;- Views(hg38, utr5) %&gt;% DNAStringSet() 
+names(utr5Seq) &lt;- paste(utr5$transcript_id, utr5$gene_name, granges(utr5),
+                        sep = &quot;_&quot;)
+writeXStringSet(utr3Seq, here(&quot;data&quot;,&quot;ire&quot;,
+                              &quot;human&quot;,&quot;utr5.fa.gz&quot;), compress = TRUE)</code></pre>
+<ul>
+<li>A total of 149,893 sequences were exported.</li>
+</ul>
+</div>
+</div>
+<div id="import-sires-results" class="section level2">
+<h2>3. Import SIREs results</h2>
+<div id="utr-2" class="section level4">
+<h4>3.1. 3’ UTR</h4>
+<ul>
+<li>Results from scans of the above sequences using the <a href="http://ccbg.imppc.org/sires/">SIREs website</a> were loaded as data frames, with co-ordinates converted to the underlying genomic co-ordinates, as opposed to being in reference to the submitted sequences</li>
+</ul>
+<pre class="r"><code>ireUtr3 &lt;- here(&quot;data&quot;, &quot;ire&quot;, &quot;human&quot;,&quot;utr3_sires.gff&quot;) %&gt;% 
+    import.gff() %&gt;%
+    as.data.frame(stringsAsFactors = FALSE) %&gt;%
+    as_tibble()</code></pre>
+<pre class="r"><code>ireUtr3 %&lt;&gt;%
+    mutate(seqnames = as.character(seqnames),
+                 seqnames = str_replace(seqnames, &quot;_chrUn_&quot;, &quot;_chrUn-&quot;)
+                 ) %&gt;%
+    dplyr::select(-strand) %&gt;%
+    separate(seqnames, c(&quot;transcript_id&quot;, &quot;gene_name&quot;, &quot;location&quot;), sep = &quot;_&quot;) %&gt;%
+    mutate(location = str_replace(location, &quot;chrUn-&quot;, &quot;chrUn_&quot;)) %&gt;%
+    separate(
+        location, 
+        into = c(&quot;seqnames&quot;, &quot;trans_start&quot;, &quot;trans_end&quot;, &quot;strand&quot;),
+        sep = &quot;[:-]&quot;
+    ) %&gt;%
+    mutate_at(c(&quot;trans_start&quot;, &quot;trans_end&quot;), funs(as.integer)) %&gt;%
+    mutate(strand = case_when(
+        strand == &quot;&quot; ~ &quot;-&quot;,
+        strand == &quot;+&quot; ~ &quot;+&quot;
+    ),
+    start = ifelse(
+        strand == &quot;+&quot;, 
+        trans_start + start - 1L,
+        trans_end - end + 1L
+    ),
+    end = start + width - 1) %&gt;%
+    dplyr::select(-contains(&quot;trans_&quot;)) %&gt;%
+  dplyr::filter(!is.na(seqnames))%&gt;%
+    makeGRangesFromDataFrame(
+        keep.extra.columns = TRUE,
+        seqnames.field = &quot;seqnames&quot;, 
+        start.field = &quot;start&quot;, 
+        end.field = &quot;end&quot;, 
+        strand.field = &quot;strand&quot;) </code></pre>
+<pre><code>Warning: Expected 4 pieces. Additional pieces discarded in 3613 rows [1, 2, 5,
+6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 34, 38, 39, ...].</code></pre>
+<pre><code>Warning: funs() is soft deprecated as of dplyr 0.8.0
+Please use a list of either functions or lambdas: 
+
+  # Simple named list: 
+  list(mean = mean, median = median)
+
+  # Auto named with `tibble::lst()`: 
+  tibble::lst(mean, median)
+
+  # Using lambdas
+  list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
+This warning is displayed once per session.</code></pre>
+<pre class="r"><code>ireUtr3$gene_id &lt;- mcols(gr)$gene_id[match(ireUtr3$transcript_id, gr$transcript_id)]</code></pre>
+<ul>
+<li><p>A total of 7,213 IREs were found across 3,041 genes when inspecting the 3’UTR sequences. These can be summarised as:</p></li>
+<li><p><strong>c8_class</strong>:</p>
+<table style="width:19%;">
+<colgroup>
+<col width="9%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">good</th>
+<th align="center">wrong</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">2695</td>
+<td align="center">4518</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>pred_loop_class</strong>:</p>
+<table style="width:19%;">
+<colgroup>
+<col width="9%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">good</th>
+<th align="center">wrong</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">2247</td>
+<td align="center">4966</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>pairs_class</strong>:</p>
+<table style="width:19%;">
+<colgroup>
+<col width="9%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">good</th>
+<th align="center">ok</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">1707</td>
+<td align="center">5506</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>quality</strong>:</p>
+<table style="width:31%;">
+<colgroup>
+<col width="9%" />
+<col width="9%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">High</th>
+<th align="center">Low</th>
+<th align="center">Medium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">616</td>
+<td align="center">4300</td>
+<td align="center">2297</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+<!-- end of list -->
+</div>
+<div id="utr-3" class="section level3">
+<h3>3.2. 5’ UTR</h3>
+<ul>
+<li>The same process was repeated for 5’ UTR IREs, with the exception that this time the gene <em>TMCC1</em> required manual correcting.</li>
+</ul>
+<pre class="r"><code>ireUtr5 &lt;- here(&quot;data&quot;, &quot;ire&quot;, &quot;human&quot;,&quot;utr5_sires.gff&quot;) %&gt;% 
+    import.gff() %&gt;%
+    as.data.frame(stringsAsFactors = FALSE) %&gt;%
+    as_tibble()</code></pre>
+<ul>
+<li>The loaded matches to IREs in the UTR5 were then converted to a GRanges object.</li>
+</ul>
+<pre class="r"><code>ireUtr5 %&lt;&gt;%
+    mutate(seqnames = as.character(seqnames),
+                 seqnames = str_replace(seqnames, &quot;_chrUn_&quot;, &quot;_chrUn-&quot;)) %&gt;%
+    dplyr::select(-strand) %&gt;%
+    separate(seqnames, c(&quot;transcript_id&quot;, &quot;gene_name&quot;, &quot;location&quot;), sep = &quot;_&quot;) %&gt;%
+    mutate(location = str_replace(location, &quot;chrUn-&quot;, &quot;chrUn_&quot;)) %&gt;%
+    separate(
+        location, 
+        into = c(&quot;seqnames&quot;, &quot;trans_start&quot;, &quot;trans_end&quot;, &quot;strand&quot;),
+        sep = &quot;[:-]&quot;
+    ) %&gt;%
+    mutate_at(c(&quot;trans_start&quot;, &quot;trans_end&quot;), funs(as.integer)) %&gt;%
+    mutate(strand = case_when(
+        strand == &quot;&quot; ~ &quot;-&quot;,
+        strand == &quot;+&quot; ~ &quot;+&quot;
+    ),
+    start = ifelse(
+        strand == &quot;+&quot;, 
+        trans_start + start - 1L,
+        trans_end - end + 1L
+    ),
+    end = start + width - 1) %&gt;%
+    dplyr::select(-contains(&quot;trans_&quot;)) %&gt;%
+    makeGRangesFromDataFrame(
+        keep.extra.columns = TRUE, 
+        seqinfo = seqinfo(gr), 
+        seqnames.field = &quot;seqnames&quot;, 
+        start.field = &quot;start&quot;, 
+        end.field = &quot;end&quot;, 
+        strand.field = &quot;strand&quot;)</code></pre>
+<pre><code>Warning: Expected 4 pieces. Additional pieces discarded in 1320 rows [4, 9, 10,
+11, 12, 13, 14, 20, 21, 22, 23, 24, 25, 26, 29, 30, 33, 34, 36, 38, ...].</code></pre>
+<pre class="r"><code>ireUtr5$gene_id &lt;- mcols(gr)$gene_id[match(ireUtr5$transcript_id, gr$transcript_id)]</code></pre>
+<ul>
+<li><p>A total of 2,642 IREs were found across 1,265 genes when inspecting the 5’UTR sequences. These can be summarised as:</p></li>
+<li><p><strong>c8_class</strong>:</p>
+<table style="width:19%;">
+<colgroup>
+<col width="9%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">good</th>
+<th align="center">wrong</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">851</td>
+<td align="center">1791</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>pred_loop_class</strong>:</p>
+<table style="width:19%;">
+<colgroup>
+<col width="9%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">good</th>
+<th align="center">wrong</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">780</td>
+<td align="center">1862</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>pairs_class</strong>:</p>
+<table style="width:19%;">
+<colgroup>
+<col width="9%" />
+<col width="9%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">good</th>
+<th align="center">ok</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">610</td>
+<td align="center">2032</td>
+</tr>
+</tbody>
+</table></li>
+<li><p><strong>quality</strong>:</p>
+<table style="width:31%;">
+<colgroup>
+<col width="9%" />
+<col width="9%" />
+<col width="11%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="center">High</th>
+<th align="center">Low</th>
+<th align="center">Medium</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="center">224</td>
+<td align="center">1576</td>
+<td align="center">842</td>
+</tr>
+</tbody>
+</table></li>
+</ul>
+<!-- end of list -->
+</div>
+</div>
+<div id="genes-with-both-3-and-5-ires" class="section level2">
+<h2>5. Genes with both 3’ and 5’ IREs</h2>
+<ul>
+<li><p>In mouse and zebrafish we detected genes with both 3’ and 5’ IREs and these were removed due to a lack of a simple interpretation regarding their stability changes under iron dyshomeostasis.</p></li>
+<li><p>Here we also check if there are also genes in human which have both 3’ and 5’ IREs:</p></li>
+</ul>
+<pre class="r"><code>ire3and5 &lt;- ireUtr3 %&gt;% 
+  dplyr::filter(gene_id %in% ireUtr5$gene_id) %&gt;% 
+  as.data.frame %&gt;% 
+  dplyr::distinct(gene_id,.keep_all=TRUE) %&gt;%
+  dplyr::select(gene_id, seqnames, start, end,
+                transcript_id, gene_name, quality) %&gt;%
+  dplyr::rename(quality_3ire = quality)
+
+ire5and3 &lt;- ireUtr5 %&gt;% 
+  dplyr::filter(gene_id %in% ireUtr3$gene_id) %&gt;% 
+  as.data.frame %&gt;% 
+  dplyr::distinct(gene_id,.keep_all=TRUE) %&gt;%
+  dplyr::select(gene_id, seqnames, start, end,
+                transcript_id, gene_name, quality) %&gt;%
+  dplyr::rename(quality_5ire = quality)
+
+table(ire3and5$gene_id %in% ire5and3$gene_id) # Check they are the same genes</code></pre>
+<pre><code>
+TRUE 
+ 260 </code></pre>
+<pre class="r"><code>ire3and5 %&lt;&gt;% full_join(ire5and3, 
+                       by = c(&quot;gene_id&quot;,
+                              &quot;seqnames&quot;, 
+                              &quot;gene_name&quot;), 
+                       suffix = c(&quot;_3ire&quot;, &quot;_5ire&quot;)) </code></pre>
+<pre><code>Warning: Column `seqnames` joining factors with different levels, coercing to
+character vector</code></pre>
+<pre class="r"><code>ire3and5</code></pre>
+<pre><code>            gene_id seqnames start_3ire  end_3ire transcript_id_3ire  gene_name
+1   ENSG00000162413     chr1    6593803   6593834    ENST00000377663     KLHL21
+2   ENSG00000177000     chr1   11794494  11794525    ENST00000641747      MTHFR
+3   ENSG00000169991     chr1   18904612  18904643    ENST00000455833      IFFO2
+4   ENSG00000162542     chr1   19682363  19682394    ENST00000294543      TMCO4
+5   ENSG00000126070     chr1   36059363  36059394    ENST00000373191       AGO3
+6   ENSG00000162374     chr1   50203487  50203518    ENST00000371827     ELAVL4
+7   ENSG00000185104     chr1   50439383  50439414    ENST00000396153       FAF1
+8   ENSG00000050628     chr1   70971275  70971306    ENST00000306666     PTGER3
+9   ENSG00000162836     chr1  147646759 147646790    ENST00000583509       ACP6
+10  ENSG00000188643     chr1  153607310 153607341    ENST00000368704    S100A16
+11  ENSG00000160710     chr1  154584706 154584737    ENST00000368474       ADAR
+12  ENSG00000185630     chr1  164560196 164560227    ENST00000485769       PBX1
+13  ENSG00000143157     chr1  166852991 166853023    ENST00000367876       POGK
+14  ENSG00000135835     chr1  180949390 180949421    ENST00000367588   KIAA1614
+15  ENSG00000058673     chr1  203853146 203853177    ENST00000367210    ZC3H11A
+16  ENSG00000257315     chr1  203837966 203837991    ENST00000550078      ZBED6
+17  ENSG00000143514     chr1  223780315 223780346    ENST00000391878    TP53BP2
+18  ENSG00000173567     chr2   26311878  26311910    ENST00000435303     ADGRF3
+19  ENSG00000162959     chr2   31867902  31867934    ENST00000295065      MEMO1
+20  ENSG00000150938     chr2   36549936  36549967    ENST00000280527      CRIM1
+21  ENSG00000184261     chr2   47518912  47518944    ENST00000327876     KCNK12
+22  ENSG00000055813     chr2   56384804  56384835    ENST00000407595    CCDC85A
+23  ENSG00000163013     chr2   73258014  73258046    ENST00000295133     FBXO41
+24  ENSG00000144026     chr2   95148955  95148987    ENST00000295208     ZNF514
+25  ENSG00000275111     chr2   95182220  95182251    ENST00000617923       ZNF2
+26  ENSG00000125637     chr2  113204529 113204560    ENST00000441564       PSD4
+27  ENSG00000183840     chr2  132645965 132645996    ENST00000329321      GPR39
+28  ENSG00000115159     chr2  156583619 156583651    ENST00000310454       GPD2
+29  ENSG00000136531     chr2  165297017 165297042    ENST00000637367      SCN2A
+30  ENSG00000091409     chr2  172505395 172505426    ENST00000264107      ITGA6
+31  ENSG00000116095     chr2  178505319 178505350    ENST00000234453    PLEKHA3
+32  ENSG00000061676     chr2  182920039 182920070    ENST00000361354     NCKAP1
+33  ENSG00000072195     chr2  219492851 219492882    ENST00000312358       SPEG
+34  ENSG00000115677     chr2  241227818 241227850    ENST00000391975      HDLBP
+35  ENSG00000179796     chr3   26711729  26711760    ENST00000648296     LRRC3B
+36  ENSG00000144677     chr3   37981208  37981239    ENST00000443503     CTDSPL
+37  ENSG00000163808     chr3   44780886  44780917    ENST00000438321      KIF15
+38  ENSG00000114735     chr3   50585032  50585063    ENST00000434410      HEMK1
+39  ENSG00000243696     chr3   52813348  52813379    ENST00000468472 AC006254.1
+40  ENSG00000114423     chr3  105655664 105655695    ENST00000394030       CBLB
+41  ENSG00000176542     chr3  113650448 113650479    ENST00000316407       USF3
+42  ENSG00000065534     chr3  123610532 123610564    ENST00000360772       MYLK
+43  ENSG00000081307     chr3  132677961 132677992    ENST00000264991       UBA5
+44  ENSG00000091527     chr3  133587412 133587443    ENST00000420115       CDV3
+45  ENSG00000155893     chr3  141306322 141306353    ENST00000636601     PXYLP1
+46  ENSG00000078070     chr3  183015228 183015259    ENST00000265594      MCCC1
+47  ENSG00000163960     chr3  196348842 196348873    ENST00000296328      UBXN7
+48  ENSG00000159674     chr4    1167421   1167452    ENST00000290902      SPON2
+49  ENSG00000163945     chr4    1386117   1386149    ENST00000511216      UVSSA
+50  ENSG00000159733     chr4    2270454   2270486    ENST00000508471    ZFYVE28
+51  ENSG00000087266     chr4    2834528   2834559    ENST00000442312     SH3BP2
+52  ENSG00000188981     chr4    3261682   3261713    ENST00000510580    MSANTD1
+53  ENSG00000169851     chr4   30732471  30732502    ENST00000361762      PCDH7
+54  ENSG00000184178     chr4   52873008  52873039    ENST00000401642      SCFD2
+55  ENSG00000080493     chr4   71570094  71570125    ENST00000425175     SLC4A4
+56  ENSG00000138771     chr4   76782374  76782406    ENST00000296043    SHROOM3
+57  ENSG00000170522     chr4  110050619 110050650    ENST00000394607     ELOVL6
+58  ENSG00000145362     chr4  113369642 113369673    ENST00000612754       ANK2
+59  ENSG00000138735     chr4  119496276 119496307    ENST00000354960      PDE5A
+60  ENSG00000170153     chr4  140863176 140863207    ENST00000515673     RNF150
+61  ENSG00000151611     chr4  145655222 145655254    ENST00000647947       MMAA
+62  ENSG00000063438     chr5     437287    437318    ENST00000316418       AHRR
+63  ENSG00000113407     chr5   33453373  33453404    ENST00000508361       TARS
+64  ENSG00000171522     chr5   40692922  40692953    ENST00000302472     PTGER4
+65  ENSG00000049883     chr5   72331277  72331308    ENST00000486995      PTCD2
+66  ENSG00000118985     chr5   95885458  95885489    ENST00000237853       ELL2
+67  ENSG00000145743     chr5  107859654 107859685    ENST00000359660     FBXL17
+68  ENSG00000145779     chr5  119398529 119398560    ENST00000504771    TNFAIP8
+69  ENSG00000069011     chr5  135027992 135028023    ENST00000265340      PITX1
+70  ENSG00000169045     chr5  179614870 179614902    ENST00000393432    HNRNPH1
+71  ENSG00000145990     chr6   13359272  13359303    ENST00000379284      GFOD1
+72  ENSG00000111913     chr6   24805532  24805564    ENST00000644685     RIPOR2
+73  ENSG00000124508     chr6   26388096  26388127    ENST00000471116     BTN2A2
+74  ENSG00000204290     chr6   32396328  32396359    ENST00000465865      BTNL2
+75  ENSG00000156639     chr6   38152928  38152959    ENST00000287218     ZFAND3
+76  ENSG00000164627     chr6   39333408  39333440    ENST00000458470       KIF6
+77  ENSG00000112561     chr6   41686824  41686855    ENST00000394283       TFEB
+78  ENSG00000001084     chr6   53498621  53498652    ENST00000509541       GCLC
+79  ENSG00000130338     chr6  158507923 158507954    ENST00000367097      TULP4
+80  ENSG00000205903     chr7    6654763   6654795    ENST00000382252     ZNF316
+81  ENSG00000106392     chr7    7243802   7243833    ENST00000436587    C1GALT1
+82  ENSG00000106624     chr7   44114004  44114035    ENST00000413907      AEBP1
+83  ENSG00000157214     chr7   90237019  90237050    ENST00000287908     STEAP2
+84  ENSG00000127920     chr7   93926485  93926517    ENST00000248564      GNG11
+85  ENSG00000013374     chr7  151377538 151377569    ENST00000413040       NUB1
+86  ENSG00000130675     chr7  157005131 157005162    ENST00000252971       MNX1
+87  ENSG00000047644     chrX   10141664  10141695    ENST00000380861       WWC3
+88  ENSG00000165186     chrX   23403471  23403502    ENST00000379361     PTCHD1
+89  ENSG00000131089     chrX   63641090  63641121    ENST00000636926    ARHGEF9
+90  ENSG00000169083     chrX   67727771  67727803    ENST00000612452         AR
+91  ENSG00000130052     chrX   68717608  68717639    ENST00000523864     STARD8
+92  ENSG00000147164     chrX   71060639  71060670    ENST00000374274      SNX12
+93  ENSG00000204131     chrX   72145646  72145677    ENST00000633930      NHSL2
+94  ENSG00000188706     chrX  129805078 129805109    ENST00000357166     ZDHHC9
+95  ENSG00000102081     chrX  147914390 147914422    ENST00000621447       FMR1
+96  ENSG00000197620     chrX  149550401 149550432    ENST00000514208   CXorf40A
+97  ENSG00000183305     chrX  152718179 152718210    ENST00000331220    MAGEA2B
+98  ENSG00000268606     chrX  152750260 152750291    ENST00000620710     MAGEA2
+99  ENSG00000269433     chrX  154271621 154271652    ENST00000599405    OPN1MW3
+100 ENSG00000071553     chrX  154431136 154431167    ENST00000455205    ATP6AP1
+101 ENSG00000203879     chrX  154438788 154438819    ENST00000445564       GDI1
+102 ENSG00000185010     chrX  154930815 154930846    ENST00000647125         F8
+103 ENSG00000104728     chr8    1958305   1958336    ENST00000349830   ARHGEF10
+104 ENSG00000147408     chr8   19439891  19439922    ENST00000397998 CSGALNACT1
+105 ENSG00000168546     chr8   21693098  21693129    ENST00000524240      GFRA2
+106 ENSG00000168487     chr8   22211623  22211654    ENST00000354870       BMP1
+107 ENSG00000120913     chr8   22593950  22593981    ENST00000308354     PDLIM2
+108 ENSG00000147548     chr8   38272273  38272304    ENST00000317025       NSD3
+109 ENSG00000147526     chr8   38849915  38849947    ENST00000519416      TACC1
+110 ENSG00000147509     chr8   53946706  53946737    ENST00000517659      RGS20
+111 ENSG00000205133     chr8   92883822  92883853    ENST00000521988      TRIQK
+112 ENSG00000169427     chr8  139611397 139611428    ENST00000522317      KCNK9
+113 ENSG00000185189     chr8  143834254 143834285    ENST00000442628      NRBP2
+114 ENSG00000137070     chr9   34659810  34659841    ENST00000555247     IL11RA
+115 ENSG00000198963     chr9   74691257  74691288    ENST00000376896       RORB
+116 ENSG00000148082     chr9   89006950  89006982    ENST00000375835       SHC3
+117 ENSG00000158169     chr9   95099572  95099603    ENST00000289081      FANCC
+118 ENSG00000119523     chr9   99217424  99217455    ENST00000238477       ALG2
+119 ENSG00000070159     chr9  109379605 109379633    ENST00000262539      PTPN3
+120 ENSG00000197859     chr9  133575031 133575062    ENST00000354484   ADAMTSL2
+121 ENSG00000169925     chr9  134031974 134032005    ENST00000303407       BRD3
+122 ENSG00000130635     chr9  134842565 134842596    ENST00000371817     COL5A1
+123 ENSG00000284976     chr9  137218711 137218742    ENST00000645271 BX255925.3
+124 ENSG00000188986     chr9  137273388 137273419    ENST00000343053      NELFB
+125 ENSG00000181090     chr9  137866414 137866446    ENST00000462942      EHMT1
+126 ENSG00000177830    chr11     868559    868590    ENST00000454838      CHID1
+127 ENSG00000166452    chr11    8917843   8917874    ENST00000529876      AKIP1
+128 ENSG00000176697    chr11   27656808  27656839    ENST00000439476       BDNF
+129 ENSG00000007372    chr11   31787492  31787523    ENST00000606377       PAX6
+130 ENSG00000176148    chr11   33068709  33068740    ENST00000528107    TCP11L1
+131 ENSG00000149115    chr11   57313830  57313862    ENST00000528882   TNKS1BP1
+132 ENSG00000162144    chr11   61349182  61349213    ENST00000294072   CYB561A3
+133 ENSG00000072518    chr11   63910140  63910171    ENST00000402010      MARK2
+134 ENSG00000168056    chr11   65552285  65552316    ENST00000528516      LTBP3
+135 ENSG00000172818    chr11   65796450  65796481    ENST00000335987      OVOL1
+136 ENSG00000173120    chr11   67257129  67257160    ENST00000398645      KDM2A
+137 ENSG00000110075    chr11   68615112  68615143    ENST00000393800     PPP6R3
+138 ENSG00000172890    chr11   71490865  71490896    ENST00000525200    NADSYN1
+139 ENSG00000077514    chr11   74642251  74642282    ENST00000263681      POLD3
+140 ENSG00000137507    chr11   76658914  76658945    ENST00000260061     LRRC32
+141 ENSG00000149231    chr11   96354531  96354562    ENST00000643839     CCDC82
+142 ENSG00000137648    chr11  118103187 118103218    ENST00000517483    TMPRSS4
+143 ENSG00000151502    chr11  134247065 134247096    ENST00000281187     VPS26B
+144 ENSG00000109956    chr11  134380519 134380550    ENST00000392580     B3GAT1
+145 ENSG00000172661    chr10   45792830  45792861    ENST00000359860    WASHC2C
+146 ENSG00000099290    chr10   50133375  50133406    ENST00000611324    WASHC2A
+147 ENSG00000204147    chr10   50756795  50756826    ENST00000374007     ASAH2B
+148 ENSG00000214688    chr10   71712682  71712713    ENST00000441508  C10orf105
+149 ENSG00000148719    chr10   72334394  72334426    ENST00000394903    DNAJB12
+150 ENSG00000171206    chr10  102660385 102660416    ENST00000643721      TRIM8
+151 ENSG00000165868    chr10  116674458 116674489    ENST00000369209    HSPA12A
+152 ENSG00000111269    chr12   12643263  12643294    ENST00000228865     CREBL2
+153 ENSG00000151490    chr12   15595755  15595786    ENST00000445537      PTPRO
+154 ENSG00000188906    chr12   40304668  40304699    ENST00000343742      LRRK2
+155 ENSG00000139624    chr12   50134662  50134693    ENST00000551697      CERS5
+156 ENSG00000110911    chr12   50979444  50979475    ENST00000551215    SLC11A2
+157 ENSG00000127325    chr12   69670160  69670191    ENST00000476098      BEST3
+158 ENSG00000127328    chr12   69795545  69795576    ENST00000378815     RAB3IP
+159 ENSG00000120833    chr12   93574120  93574151    ENST00000548537      SOCS2
+160 ENSG00000169372    chr12   93894532  93894563    ENST00000548483      CRADD
+161 ENSG00000136014    chr12   95518192  95518223    ENST00000552440      USP44
+162 ENSG00000136021    chr12  100340535 100340566    ENST00000360820      SCYL2
+163 ENSG00000110906    chr12  109470403 109470434    ENST00000537165     KCTD10
+164 ENSG00000171435    chr12  117461352 117461383    ENST00000425217       KSR2
+165 ENSG00000110987    chr12  122059761 122059792    ENST00000538010      BCL7A
+166 ENSG00000111452    chr12  131139838 131139870    ENST00000261654     ADGRD1
+167 ENSG00000183722    chr13   39216048  39216079    ENST00000648377     LHFPL6
+168 ENSG00000136104    chr13   50934956  50934987    ENST00000644297   RNASEH2B
+169 ENSG00000102786    chr13   51362028  51362059    ENST00000398119      INTS6
+170 ENSG00000153487    chr13  110721820 110721851    ENST00000333219       ING1
+171 ENSG00000102606    chr13  111303606 111303637    ENST00000646102    ARHGEF7
+172 ENSG00000126216    chr13  112485957 112485988    ENST00000261965    TUBGCP3
+173 ENSG00000068650    chr13  112884347 112884378    ENST00000487903     ATP11A
+174 ENSG00000126218    chr13  113149354 113149385    ENST00000409306        F10
+175 ENSG00000259431    chr14   23559984  23560015    ENST00000288014      THTPA
+176 ENSG00000100897    chr14   24119576  24119607    ENST00000557802     DCAF11
+177 ENSG00000100441    chr14   24438000  24438031    ENST00000251343      KHNYN
+178 ENSG00000168952    chr14   24809757  24809789    ENST00000396700     STXBP6
+179 ENSG00000139910    chr14   26480113  26480143    ENST00000483536      NOVA1
+180 ENSG00000100852    chr14   32155785  32155816    ENST00000396582    ARHGAP5
+181 ENSG00000165410    chr14   34710073  34710104    ENST00000298159       CFL2
+182 ENSG00000012983    chr14   50418591  50418622    ENST00000013125     MAP4K5
+183 ENSG00000198133    chr14   67454586  67454617    ENST00000555638   TMEM229B
+184 ENSG00000100678    chr14   70047756  70047787    ENST00000533541     SLC8A3
+185 ENSG00000100596    chr14   77506835  77506866    ENST00000216484     SPTLC2
+186 ENSG00000100629    chr14   80477805  80477836    ENST00000554502     CEP128
+187 ENSG00000100433    chr14   88182244  88182275    ENST00000340700     KCNK10
+188 ENSG00000053254    chr14   89158911  89158942    ENST00000345097      FOXN3
+189 ENSG00000140104    chr14  104994938 104994969    ENST00000547315      CLBA1
+190 ENSG00000114062    chr15   25338346  25338377    ENST00000636667      UBE3A
+191 ENSG00000104154    chr15   45481352  45481383    ENST00000261867    SLC30A4
+192 ENSG00000128989    chr15   52549978  52550009    ENST00000566423     ARPP19
+193 ENSG00000157483    chr15   59135371  59135402    ENST00000288235      MYO1E
+194 ENSG00000166949    chr15   67193596  67193627    ENST00000327367      SMAD3
+195 ENSG00000178761    chr15   74902024  74902055    ENST00000357635    FAM219B
+196 ENSG00000182175    chr15   93038196  93038227    ENST00000329082       RGMA
+197 ENSG00000213918    chr16    3656119   3656150    ENST00000570769     DNASE1
+198 ENSG00000166246    chr16    4749350   4749381    ENST00000299320   C16orf71
+199 ENSG00000179889    chr16   15029440  15029471    ENST00000455313     PDXDC1
+200 ENSG00000103021    chr16   58282418  58282449    ENST00000443128    CCDC113
+201 ENSG00000166548    chr16   66510072  66510103    ENST00000299697        TK2
+202 ENSG00000198373    chr16   69910007  69910038    ENST00000569174       WWP2
+203 ENSG00000189091    chr16   70571832  70571863    ENST00000302516      SF3B3
+204 ENSG00000050820    chr16   75236938  75236970    ENST00000562556      BCAR1
+205 ENSG00000103264    chr16   87330383  87330414    ENST00000311635     FBXO31
+206 ENSG00000196689    chr17    3565589   3565620    ENST00000399759      TRPV1
+207 ENSG00000184185    chr17   21418726  21418757    ENST00000583088     KCNJ12
+208 ENSG00000109103    chr17   28547448  28547479    ENST00000301032     UNC119
+209 ENSG00000173065    chr17   28758157  28758188    ENST00000341217    FAM222B
+210 ENSG00000275832    chr17   38489800  38489831    ENST00000620325   ARHGAP23
+211 ENSG00000275023    chr17   38728455  38728487    ENST00000621332      MLLT6
+212 ENSG00000276293    chr17   38765988  38766019    ENST00000619039    PIP4K2B
+213 ENSG00000004939    chr17   44249554  44249585    ENST00000262418     SLC4A1
+214 ENSG00000006025    chr17   47808314  47808345    ENST00000579728     OSBPL7
+215 ENSG00000120093    chr17   48549409  48549440    ENST00000470495      HOXB3
+216 ENSG00000154975    chr17   51630864  51630895    ENST00000570565       CA10
+217 ENSG00000141179    chr17   55775819  55775850    ENST00000576183       PCTP
+218 ENSG00000108946    chr17   68531137  68531168    ENST00000358598    PRKAR1A
+219 ENSG00000266714    chr17   75610931  75610959    ENST00000584516     MYO15B
+220 ENSG00000168675    chr18   13650292  13650323    ENST00000399848    LDLRAD4
+221 ENSG00000141447    chr18   24358035  24358066    ENST00000399441    OSBPL1A
+222 ENSG00000141627    chr18   49379685  49379716    ENST00000579058        DYM
+223 ENSG00000196628    chr18   55228983  55229014    ENST00000637923       TCF4
+224 ENSG00000134444    chr18   62307347  62307378    ENST00000644646      RELCH
+225 ENSG00000101255    chr20     397119    397150    ENST00000217233      TRIB3
+226 ENSG00000125875    chr20     438400    438432    ENST00000354200    TBC1D20
+227 ENSG00000125885    chr20    5994432   5994463    ENST00000610722       MCM8
+228 ENSG00000171552    chr20   31665433  31665465    ENST00000376062     BCL2L1
+229 ENSG00000101445    chr20   38919660  38919691    ENST00000299824   PPP1R16B
+230 ENSG00000101076    chr20   44430546  44430577    ENST00000619550      HNF4A
+231 ENSG00000204070    chr20   45375617  45375649    ENST00000426004       SYS1
+232 ENSG00000124092    chr20   57498170  57498201    ENST00000608263      CTCFL
+233 ENSG00000124209    chr20   58363811  58363842    ENST00000244040     RAB22A
+234 ENSG00000198768    chr20   58459761  58459792    ENST00000371149    APCDD1L
+235 ENSG00000185988    chr19    1535122   1535153    ENST00000642079       PLK5
+236 ENSG00000071564    chr19    1609998   1610030    ENST00000262965       TCF3
+237 ENSG00000205922    chr19    1780901   1780932    ENST00000382349    ONECUT3
+238 ENSG00000104833    chr19    6495917   6495949    ENST00000595324     TUBB4A
+239 ENSG00000171466    chr19    9648964   9648995    ENST00000293648     ZNF562
+240 ENSG00000127616    chr19   11033780  11033811    ENST00000646593    SMARCA4
+241 ENSG00000004776    chr19   35755595  35755626    ENST00000587965      HSPB6
+242 ENSG00000171817    chr19   37611751  37611782    ENST00000586792     ZNF540
+243 ENSG00000104946    chr19   49882320  49882351    ENST00000594996    TBC1D17
+244 ENSG00000105053    chr19   49981750  49981782    ENST00000601912       VRK3
+245 ENSG00000088038    chr19   54154791  54154822    ENST00000617930      CNOT3
+246 ENSG00000167615    chr19   54459793  54459824    ENST00000376514      LENG8
+247 ENSG00000121417    chr19   57641142  57641173    ENST00000540556     ZNF211
+248 ENSG00000176293    chr19   58069336  58069367    ENST00000359978     ZNF135
+249 ENSG00000198131    chr19   58261235  58261267    ENST00000599227     ZNF544
+250 ENSG00000083812    chr19   58473771  58473802    ENST00000536459     ZNF324
+251 ENSG00000083838    chr19   58480927  58480958    ENST00000596341     ZNF446
+252 ENSG00000183307    chr22   17119261  17119292    ENST00000399875   TMEM121B
+253 ENSG00000184470    chr22   19876455  19876486    ENST00000400519     TXNRD2
+254 ENSG00000100036    chr22   30647776  30647807    ENST00000343605    SLC35E4
+255 ENSG00000100354    chr22   40325636  40325667    ENST00000301923     TNRC6B
+256 ENSG00000100364    chr22   45197139  45197170    ENST00000336156   KIAA0930
+257 ENSG00000159131    chr21   33524735  33524764    ENST00000361093       GART
+258 ENSG00000157540    chr21   37521203  37521235    ENST00000646548     DYRK1A
+259 ENSG00000157551    chr21   38306995  38307026    ENST00000328656     KCNJ15
+260 ENSG00000160233    chr21   44459852  44459883    ENST00000291592      LRRC3
+    quality_3ire start_5ire  end_5ire transcript_id_5ire quality_5ire
+1            Low    6593803   6593834    ENST00000610898          Low
+2            Low   11805838  11805869    ENST00000418034       Medium
+3            Low   18956353  18956384    ENST00000455833          Low
+4            Low   19799889  19799917    ENST00000294543          Low
+5            Low   35931313  35931344    ENST00000324350          Low
+6            Low   50109698  50109729    ENST00000371821          Low
+7            Low   50959817  50959848    ENST00000396153       Medium
+8            Low   71047747  71047778    ENST00000370931       Medium
+9            Low  147670191 147670222    ENST00000583509       Medium
+10          High  153612958 153612989    ENST00000368706          Low
+11           Low  154608097 154608128    ENST00000368474         High
+12           Low  164787668 164787699    ENST00000559560          Low
+13        Medium  166839721 166839753    ENST00000449930          Low
+14           Low  180928399 180928430    ENST00000367587       Medium
+15          High  203799977 203800008    ENST00000639812          Low
+16          High  203799977 203800008    ENST00000545588          Low
+17        Medium  223821239 223821270    ENST00000391878         High
+18        Medium   26346451  26346482    ENST00000435303       Medium
+19           Low   32010519  32010550    ENST00000295065          Low
+20        Medium   36356028  36356059    ENST00000280527          Low
+21           Low   47570613  47570645    ENST00000327876       Medium
+22           Low   56184407  56184438    ENST00000407595          Low
+23        Medium   73284304  73284335    ENST00000521871          Low
+24           Low   95159499  95159530    ENST00000295208          Low
+25        Medium   95165706  95165737    ENST00000617923          Low
+26           Low  113174001 113174032    ENST00000245796          Low
+27           Low  132416597 132416628    ENST00000329321          Low
+28        Medium  156435643 156435674    ENST00000310454          Low
+29           Low  165297017 165297042    ENST00000636985          Low
+30           Low  172427691 172427722    ENST00000264107          Low
+31        Medium  178480771 178480802    ENST00000234453          Low
+32           Low  183038799 183038830    ENST00000360982       Medium
+33           Low  219460881 219460913    ENST00000396688          Low
+34           Low  241266573 241266604    ENST00000449864       Medium
+35           Low   26622884  26622915    ENST00000396641       Medium
+36          High   37862041  37862072    ENST00000443503          Low
+37           Low   44780886  44780917    ENST00000481166          Low
+38           Low   50569714  50569745    ENST00000424388       Medium
+39           Low   52835061  52835092    ENST00000468472       Medium
+40           Low  105868936 105868967    ENST00000394030          Low
+41        Medium  113696372 113696403    ENST00000491165         High
+42        Medium  123625044 123625075    ENST00000418370       Medium
+43           Low  132659499 132659530    ENST00000356232          Low
+44           Low  133573871 133573902    ENST00000264993          Low
+45          High  141274110 141274141    ENST00000508812         High
+46           Low  183098776 183098807    ENST00000497959       Medium
+47           Low  196416176 196416207    ENST00000413584       Medium
+48        Medium    1207904   1207935    ENST00000509233          Low
+49        Medium    1393984   1394015    ENST00000324803          Low
+50           Low    2418604   2418635    ENST00000290974          Low
+51        Medium    2812008   2812040    ENST00000513095          Low
+52        Medium    3248891   3248922    ENST00000438480          Low
+53        Medium   30721304  30721335    ENST00000361762          Low
+54        Medium   53365221  53365252    ENST00000503450          Low
+55           Low   71187327  71187353    ENST00000351898       Medium
+56           Low   76435792  76435823    ENST00000296043          Low
+57           Low  110198502 110198533    ENST00000302274          Low
+58        Medium  113117018 113117049    ENST00000508613          Low
+59           Low  119627341 119627372    ENST00000264805          Low
+60           Low  141133147 141133178    ENST00000306799       Medium
+61           Low  145619340 145619371    ENST00000281317          Low
+62           Low     343630    343661    ENST00000504625          Low
+63           Low   33440923  33440954    ENST00000265112       Medium
+64        Medium   40679972  40680003    ENST00000302472       Medium
+65        Medium   72331277  72331308    ENST00000543322       Medium
+66        Medium   95961966  95961997    ENST00000237853          Low
+67           Low  108380834 108380866    ENST00000359660       Medium
+68        Medium  119355793 119355824    ENST00000504771       Medium
+69           Low  135034248 135034280    ENST00000265340          Low
+70        Medium  179634226 179634257    ENST00000522256       Medium
+71           Low   13487341  13487372    ENST00000379287          Low
+72           Low   24877298  24877329    ENST00000378023          Low
+73        Medium   26388096  26388127    ENST00000490025       Medium
+74        Medium   32396328  32396359    ENST00000544175       Medium
+75          High   37819866  37819897    ENST00000287218          Low
+76        Medium   39586303  39586334    ENST00000538893       Medium
+77           Low   41733434  41733465    ENST00000394283          Low
+78        Medium   53544793  53544824    ENST00000650454          Low
+79        Medium  158313168 158313199    ENST00000367097       Medium
+80        Medium    6639074   6639105    ENST00000382252       Medium
+81           Low    7182644   7182675    ENST00000419721          Low
+82           Low   44104361  44104392    ENST00000223357          Low
+83           Low   90211960  90211991    ENST00000287908          Low
+84           Low   93921975  93922006    ENST00000248564          Low
+85           Low  151341816 151341846    ENST00000468404          Low
+86        Medium  157009209 157009240    ENST00000543409         High
+87           Low   10015761  10015792    ENST00000380861          Low
+88           Low   23334501  23334533    ENST00000379361       Medium
+89          High   63754342  63754373    ENST00000253401          Low
+90        Medium   67545517  67545548    ENST00000612452          Low
+91          High   68647806  68647837    ENST00000523864       Medium
+92           Low   71073362  71073393    ENST00000622277       Medium
+93           Low   72079915  72079946    ENST00000632230          Low
+94           Low  129843356 129843387    ENST00000371064          Low
+95           Low  147912019 147912051    ENST00000440235          Low
+96           Low  149545490 149545521    ENST00000359293          Low
+97           Low  152716680 152716711    ENST00000331220       Medium
+98           Low  152751759 152751790    ENST00000620710       Medium
+99           Low  154257590 154257619    ENST00000599405       Medium
+100          Low  154431136 154431167    ENST00000619046          Low
+101       Medium  154436991 154437023    ENST00000630693       Medium
+102          Low  154886261 154886292    ENST00000330287       Medium
+103       Medium    1859923   1859954    ENST00000398560       Medium
+104       Medium   19585200  19585231    ENST00000332246          Low
+105          Low   21782737  21782769    ENST00000519195       Medium
+106       Medium   22164865  22164896    ENST00000306385          Low
+107          Low   22579446  22579477    ENST00000397760          Low
+108          Low   38381601  38381632    ENST00000529223          Low
+109          Low   38788263  38788291    ENST00000521935       Medium
+110       Medium   53946706  53946737    ENST00000522225       Medium
+111          Low   92966105  92966136    ENST00000521988       Medium
+112       Medium  139703347 139703378    ENST00000648164          Low
+113          Low  143840875 143840906    ENST00000442628       Medium
+114          Low   34651931  34651962    ENST00000555003          Low
+115          Low   74497920  74497951    ENST00000376896       Medium
+116       Medium   89178629  89178660    ENST00000375835          Low
+117          Low   95317197  95317229    ENST00000375305       Medium
+118          Low   99221909  99221940    ENST00000238477          Low
+119          Low  109449225 109449256    ENST00000412145         High
+120       Medium  133534681 133534712    ENST00000393061         High
+121          Low  134068452 134068483    ENST00000371834          Low
+122       Medium  134642101 134642133    ENST00000371817       Medium
+123         High  137217653 137217684    ENST00000645271       Medium
+124          Low  137255332 137255363    ENST00000343053          Low
+125       Medium  137742979 137743010    ENST00000637318         High
+126          Low     914998    915029    ENST00000449825         High
+127       Medium    8911200   8911231    ENST00000529876          Low
+128       Medium   27720714  27720745    ENST00000525950       Medium
+129          Low   31807386  31807417    ENST00000640460          Low
+130          Low   33039611  33039642    ENST00000530419          Low
+131         High   57311418  57311450    ENST00000530920       Medium
+132          Low   61360348  61360379    ENST00000537364          Low
+133          Low   63839118  63839149    ENST00000402010          Low
+134       Medium   65546662  65546693    ENST00000529189       Medium
+135       Medium   65787095  65787126    ENST00000335987         High
+136         High   67119302  67119333    ENST00000398645         High
+137       Medium   68515139  68515166    ENST00000528635       Medium
+138          Low   71453120  71453151    ENST00000319023          Low
+139       Medium   74592973  74593004    ENST00000527458          Low
+140       Medium   76670695  76670726    ENST00000260061          Low
+141       Medium   96388939  96388970    ENST00000645439          Low
+142       Medium  118103187 118103218    ENST00000522307       Medium
+143          Low  134224766 134224797    ENST00000281187       Medium
+144       Medium  134390254 134390286    ENST00000524765       Medium
+145          Low   45727289  45727320    ENST00000359860          Low
+146          Low   50067977  50068005    ENST00000611324          Low
+147          Low   50739899  50739930    ENST00000374007          Low
+148          Low   71737791  71737822    ENST00000398786          Low
+149          Low   72354006  72354037    ENST00000461919       Medium
+150       Medium  102643668 102643699    ENST00000643721       Medium
+151       Medium  116708074 116708105    ENST00000468935          Low
+152          Low   12612126  12612157    ENST00000228865          Low
+153       Medium   15322455  15322487    ENST00000281171       Medium
+154          Low   40225034  40225065    ENST00000343742          Low
+155          Low   50167432  50167464    ENST00000422340          Low
+156          Low   51026106  51026137    ENST00000541174          Low
+157       Medium   69699244  69699275    ENST00000547208       Medium
+158          Low   69738681  69738709    ENST00000247833       Medium
+159          Low   93572523  93572554    ENST00000551556       Medium
+160         High   93677724  93677755    ENST00000542893          Low
+161          Low   95548215  95548246    ENST00000537435          Low
+162          Low  100311057 100311082    ENST00000548392          Low
+163          Low  109477347 109477378    ENST00000228495       Medium
+164          Low  117968274 117968306    ENST00000339824          Low
+165       Medium  122021691 122021722    ENST00000538010          Low
+166       Medium  130954141 130954172    ENST00000261654       Medium
+167          Low   39603089  39603120    ENST00000648377       Medium
+168          Low   50912077  50912108    ENST00000646709          Low
+169          Low   51452614  51452645    ENST00000469430       Medium
+170         High  110713874 110713905    ENST00000333219          Low
+171          Low  111209969 111210000    ENST00000449979          Low
+172          Low  112588007 112588038    ENST00000261965       Medium
+173          Low  112690353 112690384    ENST00000487903       Medium
+174          Low  113122814 113122840    ENST00000409306         High
+175       Medium   23556041  23556073    ENST00000404535          Low
+176       Medium   24114948  24114979    ENST00000557810          Low
+177          Low   24430698  24430729    ENST00000556510          Low
+178          Low   25050209  25050240    ENST00000323944          Low
+179          Low   26480113  26480143    ENST00000347476          Low
+180         High   32077026  32077053    ENST00000556611       Medium
+181          Low   34714735  34714766    ENST00000554470          Low
+182       Medium   50532532  50532563    ENST00000013125       Medium
+183          Low   67487029  67487060    ENST00000555638       Medium
+184       Medium   70188795  70188826    ENST00000356921          Low
+185          Low   77616743  77616773    ENST00000216484          Low
+186       Medium   80959466  80959497    ENST00000556042          Low
+187          Low   88326589  88326620    ENST00000340700          Low
+188          Low   89416957  89416988    ENST00000557258          Low
+189          Low  104990867 104990898    ENST00000549240          Low
+190       Medium   25438974  25439005    ENST00000635914          Low
+191          Low   45522639  45522670    ENST00000261867          Low
+192       Medium   52569727  52569758    ENST00000561971          Low
+193          Low   59372855  59372886    ENST00000288235          Low
+194          Low   67065948  67065979    ENST00000327367          Low
+195       Medium   74906512  74906543    ENST00000565772          Low
+196       Medium   93052394  93052426    ENST00000556658          Low
+197         High    3642986   3643017    ENST00000570769       Medium
+198          Low    4734618   4734649    ENST00000299320          Low
+199          Low   14974829  14974860    ENST00000563522          Low
+200         High   58249980  58250011    ENST00000443128          Low
+201          Low   66549506  66549537    ENST00000527800          Low
+202          Low   69925044  69925075    ENST00000568684          Low
+203          Low   70524018  70524049    ENST00000577085          Low
+204          Low   75251807  75251838    ENST00000564028          Low
+205         High   87389805  87389836    ENST00000618298         High
+206          Low    3597048   3597079    ENST00000571088          Low
+207          Low   21376723  21376755    ENST00000583088       Medium
+208         High   28551121  28551152    ENST00000484980       Medium
+209          Low   28767021  28767052    ENST00000584059          Low
+210       Medium   38457637  38457668    ENST00000618942          Low
+211          Low   38705604  38705632    ENST00000620609          Low
+212         High   38792848  38792879    ENST00000617499          Low
+213          Low   44249554  44249585    ENST00000631130          Low
+214       Medium   47821798  47821829    ENST00000392507         High
+215       Medium   48582392  48582423    ENST00000489475          Low
+216          Low   52157962  52157993    ENST00000442502          Low
+217       Medium   55751393  55751424    ENST00000417982       Medium
+218          Low   68512474  68512505    ENST00000392711          Low
+219          Low   75610931  75610956    ENST00000642007          Low
+220          Low   13491384  13491416    ENST00000593236       Medium
+221          Low   24271998  24272029    ENST00000399443       Medium
+222          Low   49379685  49379716    ENST00000418472          Low
+223       Medium   55589707  55589738    ENST00000636400          Low
+224          Low   62187277  62187308    ENST00000644646       Medium
+225       Medium     385511    385543    ENST00000615226          Low
+226       Medium     462452    462483    ENST00000461304          Low
+227         High    5950911   5950942    ENST00000610722          Low
+228          Low   31722254  31722285    ENST00000376062          Low
+229          Low   38835888  38835919    ENST00000299824       Medium
+230         High   44390535  44390567    ENST00000619550          Low
+231          Low   45361955  45361986    ENST00000372727          Low
+232          Low   57524815  57524846    ENST00000608263          Low
+233          Low   58309884  58309915    ENST00000244040          Low
+234          Low   58514970  58515002    ENST00000425773          Low
+235          Low    1524113   1524144    ENST00000454744         High
+236       Medium    1650545   1650576    ENST00000588136          Low
+237          Low    1753634   1753662    ENST00000382349         High
+238         High    6501690   6501721    ENST00000596291          Low
+239       Medium    9674846   9674877    ENST00000585350          Low
+240       Medium   10983682  10983711    ENST00000589677         High
+241          Low   35757958  35757989    ENST00000592984         High
+242       Medium   37595274  37595306    ENST00000343599          Low
+243       Medium   49882320  49882351    ENST00000622860       Medium
+244       Medium   50025352  50025383    ENST00000316763          Low
+245         High   54144264  54144294    ENST00000646002          Low
+246       Medium   54449643  54449674    ENST00000443957          Low
+247         High   57633300  57633331    ENST00000541801          Low
+248          Low   58059252  58059284    ENST00000313434       Medium
+249       Medium   58229211  58229242    ENST00000596825          Low
+250          Low   58467701  58467732    ENST00000536459          Low
+251          Low   58475573  58475604    ENST00000596341          Low
+252          Low   17121214  17121245    ENST00000331437          Low
+253          Low   19881058  19881089    ENST00000462843          Low
+254       Medium   30635740  30635771    ENST00000343605         High
+255         High   40045551  40045582    ENST00000402203       Medium
+256       Medium   45236185  45236216    ENST00000414854          Low
+257       Medium   33542753  33542784    ENST00000381831         High
+258          Low   37367544  37367575    ENST00000647504          Low
+259       Medium   38257046  38257074    ENST00000549158          Low
+260          Low   44455591  44455622    ENST00000291592       Medium</code></pre>
+<ul>
+<li>There are 260 of these genes in total (see above) and overall it seems as if the 3’ and 5’ IREs may be associated with alternative splicing in some cases.</li>
+</ul>
+</div>
+<div id="defining-gene-sets" class="section level2">
+<h2>4. Defining gene sets</h2>
+<ul>
+<li><p>The gene set definitions are:</p>
+<ul>
+<li><p><strong>3’UTR HQ</strong>: Genes containing high-quality IREs in the 3’ UTR</p></li>
+<li><p><strong>3’UTR ALL</strong>: Genes containing any predicted IREs in the 3’ UTR (low, med or high quality)</p></li>
+<li><p><strong>5’UTR HQ</strong>: Genes containing high-quality IREs in the 5’ UTR</p></li>
+<li><p><strong>5’UTR ALL</strong>: Genes containing any predicted IREs in the 5’ UTR (low, med or high quality)</p></li>
+</ul></li>
+<li><p>The genes containing both 3’ and 5’ IREs will be removed from these gene sets.</p></li>
+</ul>
+<pre class="r"><code>ireGenes &lt;- list(
+  ire3_all &lt;- ireUtr3 %&gt;% 
+    dplyr::filter(!(gene_id %in% ire3and5$gene_id)) %&gt;% 
+    .$gene_id %&gt;%
+    unique,
+  ire5_all &lt;- ireUtr5%&gt;%
+    dplyr::filter(!(gene_id %in% ire3and5$gene_id)) %&gt;% 
+    .$gene_id %&gt;%
+    unique,
+  ire3_hq &lt;- ireUtr3 %&gt;%
+    as.data.frame %&gt;% 
+    dplyr::filter(quality == &quot;High&quot;)%&gt;%
+    dplyr::filter(!(gene_id %in% ire3and5$gene_id)) %&gt;% 
+    .$gene_id %&gt;% unique,
+  ire5_hq &lt;- ireUtr5 %&gt;% 
+    as.data.frame %&gt;% 
+    dplyr::filter(quality == &quot;High&quot;)%&gt;%
+    dplyr::filter(!(gene_id %in% ire3and5$gene_id)) %&gt;% 
+    .$gene_id %&gt;% 
+    unique
+) %&gt;% set_names(c(&quot;ire3_all&quot;, &quot;ire5_all&quot;, &quot;ire3_hq&quot;, &quot;ire5_hq&quot;))
+
+ireGenes %&gt;% str</code></pre>
+<pre><code>List of 4
+ $ ire3_all: chr [1:2781] &quot;ENSG00000187642&quot; &quot;ENSG00000162571&quot; &quot;ENSG00000224051&quot; &quot;ENSG00000107404&quot; ...
+ $ ire5_all: chr [1:1005] &quot;ENSG00000188157&quot; &quot;ENSG00000162572&quot; &quot;ENSG00000175756&quot; &quot;ENSG00000235169&quot; ...
+ $ ire3_hq : chr [1:291] &quot;ENSG00000162571&quot; &quot;ENSG00000248333&quot; &quot;ENSG00000215790&quot; &quot;ENSG00000169598&quot; ...
+ $ ire5_hq : chr [1:85] &quot;ENSG00000175756&quot; &quot;ENSG00000176083&quot; &quot;ENSG00000085831&quot; &quot;ENSG00000177301&quot; ...</code></pre>
+</div>
+<div id="export-objects" class="section level2">
+<h2>Export Objects</h2>
+<ul>
+<li>The 3’ and 5’ IRE GRanges (as data.frame objects)</li>
+</ul>
+<pre class="r"><code>ireUtr3 %&gt;% saveRDS(here(&quot;data&quot;, &quot;ire&quot;, &quot;human&quot;, &quot;ireUtr3.rds&quot;))
+ireUtr5 %&gt;% saveRDS(here(&quot;data&quot;, &quot;ire&quot;, &quot;human&quot;, &quot;ireUtr5.rds&quot;))</code></pre>
+<ul>
+<li>The 3’ and 5’ IRE gene sets</li>
+</ul>
+<pre class="r"><code>ireGenes %&gt;% saveRDS(here(&quot;data&quot;, &quot;ire&quot;, &quot;human&quot;, &quot;ireGenes.rds&quot;))</code></pre>
+<ul>
+<li>The genes containing both 3’ and 5’ IREs</li>
+</ul>
+<pre class="r"><code>ire3and5 %&gt;% saveRDS(here(&quot;data&quot;, &quot;ire&quot;, &quot;human&quot;, &quot;ire3and5.rds&quot;))
+ire3and5 %&gt;% write.csv(here(&quot;data&quot;,&quot;ire&quot;, &quot;human&quot;, &quot;ire3and5.csv&quot;))</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.2 (2018-12-20)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Running under: macOS Mojave 10.14.6
+
+Matrix products: default
+BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_AU.UTF-8/en_AU.UTF-8/en_AU.UTF-8/C/en_AU.UTF-8/en_AU.UTF-8
+
+attached base packages:
+[1] stats4    parallel  stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] here_0.1                          forcats_0.4.0                    
+ [3] stringr_1.4.0                     dplyr_0.8.3                      
+ [5] purrr_0.3.3                       readr_1.3.1                      
+ [7] tidyr_1.0.0                       tibble_2.1.3                     
+ [9] ggplot2_3.2.1                     tidyverse_1.2.1                  
+[11] pander_0.6.3                      scales_1.0.0                     
+[13] magrittr_1.5                      fgsea_1.8.0                      
+[15] Rcpp_1.0.3                        plyranges_1.2.0                  
+[17] AnnotationHub_2.14.5              BSgenome.Hsapiens.UCSC.hg38_1.4.1
+[19] BSgenome_1.50.0                   rtracklayer_1.42.2               
+[21] Biostrings_2.50.2                 XVector_0.22.0                   
+[23] GenomicRanges_1.34.0              GenomeInfoDb_1.18.2              
+[25] IRanges_2.16.0                    S4Vectors_0.20.1                 
+[27] BiocGenerics_0.28.0              
+
+loaded via a namespace (and not attached):
+ [1] nlme_3.1-142                  bitops_1.0-6                 
+ [3] matrixStats_0.55.0            fs_1.3.1                     
+ [5] lubridate_1.7.4               bit64_0.9-7                  
+ [7] httr_1.4.1                    rprojroot_1.3-2              
+ [9] tools_3.5.2                   backports_1.1.5              
+[11] R6_2.4.1                      DBI_1.0.0                    
+[13] lazyeval_0.2.2                colorspace_1.4-1             
+[15] withr_2.1.2                   tidyselect_0.2.5             
+[17] gridExtra_2.3                 curl_4.2                     
+[19] bit_1.1-14                    compiler_3.5.2               
+[21] git2r_0.26.1                  cli_1.1.0                    
+[23] rvest_0.3.5                   Biobase_2.42.0               
+[25] xml2_1.2.2                    DelayedArray_0.8.0           
+[27] digest_0.6.22                 Rsamtools_1.34.1             
+[29] rmarkdown_1.17                pkgconfig_2.0.3              
+[31] htmltools_0.4.0               fastmap_1.0.1                
+[33] readxl_1.3.1                  rlang_0.4.1                  
+[35] rstudioapi_0.10               RSQLite_2.1.2                
+[37] shiny_1.4.0                   generics_0.0.2               
+[39] jsonlite_1.6                  BiocParallel_1.16.6          
+[41] RCurl_1.95-4.12               GenomeInfoDbData_1.2.0       
+[43] Matrix_1.2-17                 munsell_0.5.0                
+[45] lifecycle_0.1.0               stringi_1.4.3                
+[47] yaml_2.2.0                    SummarizedExperiment_1.12.0  
+[49] zlibbioc_1.28.0               grid_3.5.2                   
+[51] blob_1.2.0                    promises_1.1.0               
+[53] crayon_1.3.4                  lattice_0.20-38              
+[55] haven_2.2.0                   hms_0.5.2                    
+[57] zeallot_0.1.0                 knitr_1.26                   
+[59] pillar_1.4.2                  fastmatch_1.1-0              
+[61] XML_3.98-1.20                 glue_1.3.1                   
+[63] evaluate_0.14                 data.table_1.12.6            
+[65] BiocManager_1.30.9            modelr_0.1.5                 
+[67] vctrs_0.2.0                   httpuv_1.5.2                 
+[69] cellranger_1.1.0              gtable_0.3.0                 
+[71] assertthat_0.2.1              xfun_0.11                    
+[73] mime_0.7                      xtable_1.8-4                 
+[75] broom_0.5.2                   later_1.0.0                  
+[77] GenomicAlignments_1.18.1      AnnotationDbi_1.44.0         
+[79] memoise_1.1.0                 workflowr_1.6.1              
+[81] ellipsis_0.3.0                interactiveDisplayBase_1.20.0</code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
